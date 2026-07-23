@@ -1,0 +1,12 @@
+WIDTH, HEIGHT = 1280, 720
+FPS = 60
+PLAYER_SPEED = 300
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+DECOR_COLOR = (40, 40, 40)
+DIALOGUE_BG = (20, 20, 30)
+DIALOGUE_BORDER = (200, 200, 200)
+
+# How close (in pixels) the player must be to an NPC to interact
+INTERACT_RANGE = 60

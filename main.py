@@ -1,115 +1,73 @@
 import pygame
+from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR
+from rooms import rooms
+from player import Player
+from dialogue import DialogueBox
 
-# pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Room Transition Demo")
 clock = pygame.time.Clock()
-running = True
-dt = 0
-player_speed = 300
+font = pygame.font.SysFont(None, 36)
 
-char_front = pygame.image.load("assets/character-front.png").convert_alpha()
-char_back = pygame.image.load("assets/character-back.png").convert_alpha()
-char_left = pygame.image.load("assets/character-left.png").convert_alpha()
-char_right = pygame.image.load("assets/character-right.png").convert_alpha()
-character = char_front
-
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-
-rooms = {
-    "room1": {
-        "color": (140, 90, 180),
-        "name": "Starting Room",
-        "decor": [(180, 140, 100, 100), (900, 180, 120, 120)],
-    },
-    "room2": {
-        "color": (90, 140, 200),
-        "name": "Sky Room",
-        "decor": [(240, 320, 140, 90), (940, 120, 80, 180)],
-    },
-    "room3": {
-        "color": (70, 110, 80),
-        "name": "Cave Room",
-        "decor": [(420, 240, 110, 110), (860, 430, 140, 90)],
-    },
+# --- load sprites -----------------------------------------------------
+sprites = {
+    "front": pygame.image.load("assets/character-front.png").convert_alpha(),
+    "back": pygame.image.load("assets/character-back.png").convert_alpha(),
+    "left": pygame.image.load("assets/character-left.png").convert_alpha(),
+    "right": pygame.image.load("assets/character-right.png").convert_alpha(),
 }
 
-room_connections = {
-    "room1": {"left": None, "right": "room2", "up": None, "down": None},
-    "room2": {"left": "room1", "right": None, "up": None, "down": "room3"},
-    "room3": {"left": None, "right": None, "up": "room2", "down": None},
-}
-
+player = Player(WIDTH / 2, HEIGHT / 2, sprites)
+dialogue_box = DialogueBox()
 current_room = "room1"
 
 
-def change_room(direction):
-    global current_room, player_pos
+def change_room(new_room):
+    global current_room
+    current_room = new_room
 
-    next_room = room_connections[current_room][direction]
-    if next_room is None:
-        return
 
-    current_room = next_room
-
-    if direction == "left":
-        player_pos.x = screen.get_width() - 40
-    elif direction == "right":
-        player_pos.x = 40
-    elif direction == "up":
-        player_pos.y = screen.get_height() - 40
-    elif direction == "down":
-        player_pos.y = 40
-
+running = True
+dt = 0
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            if dialogue_box.active:
+                dialogue_box.advance()
+            else:
+                # look for a nearby NPC to start talking to
+                for npc in rooms[current_room]["npcs"]:
+                    if npc.is_near(player.pos):
+                        dialogue_box.start(npc.name, npc.lines)
+                        break
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        character = char_back
-        player_pos.y -= player_speed * dt
-        if player_pos.y < 0:
-            change_room("up")
-    if keys[pygame.K_s]:
-        character = char_front
-        player_pos.y += player_speed * dt
-        if player_pos.y > screen.get_height():
-            change_room("down")
-    if keys[pygame.K_a]:
-        character = char_left
-        player_pos.x -= player_speed * dt
-        if player_pos.x < 0:
-            change_room("left")
-    if keys[pygame.K_d]:
-        character = char_right
-        player_pos.x += player_speed * dt
-        if player_pos.x > screen.get_width():
-            change_room("right")
 
-    # fill the screen with the current room's color
-    screen.fill(rooms[current_room]["color"])
+    # freeze movement while a conversation is open
+    if not dialogue_box.active:
+        player.handle_movement(keys, dt, WIDTH, HEIGHT, current_room, change_room)
 
-    for x, y, w, h in rooms[current_room]["decor"]:
-        pygame.draw.rect(screen, (40, 40, 40), pygame.Rect(x, y, w, h))
+    # --- draw ---
+    room = rooms[current_room]
+    screen.fill(room["color"])
 
-    font = pygame.font.SysFont(None, 36)
-    room_label = font.render(rooms[current_room]["name"], True, "white")
+    for x, y, w, h in room["decor"]:
+        pygame.draw.rect(screen, DECOR_COLOR, pygame.Rect(x, y, w, h))
+
+    for npc in room["npcs"]:
+        npc.draw(screen)
+
+    room_label = font.render(room["name"], True, "white")
     screen.blit(room_label, (20, 20))
 
-    screen.blit(character, player_pos)
+    player.draw(screen)
+    dialogue_box.draw(screen)
 
-    # flip() the display to put your work on screen
     pygame.display.flip()
-
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
-    dt = clock.tick(60) / 1000
+    dt = clock.tick(FPS) / 1000
 
 pygame.quit()
