@@ -4,7 +4,10 @@ rooms = {
     "room1": {
         "color": (140, 90, 180),
         "name": "Starting Room",
-        "decor": [(180, 140, 100, 100), (900, 180, 120, 120)],
+        "decor": [
+            {"type": "cloud", "x": 80, "y": 80},
+            {"type": "star", "x": 220, "y": 120, "size": 10},
+        ],
         "npcs": [
             NPC(500, 400, "Old Man", (200, 170, 100),
                 ["Ah, a traveler.", "Head east to reach the Sky Room."]),
@@ -13,7 +16,12 @@ rooms = {
     "room2": {
         "color": (90, 140, 200),
         "name": "Sky Room",
-        "decor": [(240, 320, 140, 90), (940, 120, 80, 180)],
+        "decor": [
+            {"type": "cloud", "x": 120, "y": 80},
+            {"type": "star", "x": 900, "y": 100, "size": 12},
+            {"type": "tree", "x": 120, "y": 420},
+            {"type": "tree", "x": 800, "y": 350},
+        ],
         "npcs": [
             NPC(700, 300, "Cloud Merchant", (230, 230, 230),
                 ["Fancy some cloud silk?", "It's very light."]),
@@ -22,7 +30,9 @@ rooms = {
     "room3": {
         "color": (70, 110, 80),
         "name": "Cave Room",
-        "decor": [(420, 240, 110, 110), (860, 430, 140, 90)],
+        "decor": [
+            {"type": "star", "x": 600, "y": 90, "size": 8},
+        ],
         "npcs": [],
     },
 }

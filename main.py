@@ -3,19 +3,21 @@ from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR
 from rooms import rooms
 from player import Player
 from dialogue import DialogueBox
+import background
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Room Transition Demo")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 36)
+background.load_decor_sprites()
 
 # --- load sprites -----------------------------------------------------
 sprites = {
-    "front": pygame.image.load("assets/character-front.png").convert_alpha(),
-    "back": pygame.image.load("assets/character-back.png").convert_alpha(),
-    "left": pygame.image.load("assets/character-left.png").convert_alpha(),
-    "right": pygame.image.load("assets/character-right.png").convert_alpha(),
+    "front": pygame.image.load("assets/sprites/character-front.png").convert_alpha(),
+    "back": pygame.image.load("assets/sprites/character-back.png").convert_alpha(),
+    "left": pygame.image.load("assets/sprites/character-left.png").convert_alpha(),
+    "right": pygame.image.load("assets/sprites/character-right.png").convert_alpha(),
 }
 
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
@@ -55,8 +57,8 @@ while running:
     room = rooms[current_room]
     screen.fill(room["color"])
 
-    for x, y, w, h in room["decor"]:
-        pygame.draw.rect(screen, DECOR_COLOR, pygame.Rect(x, y, w, h))
+    for item in room.get("decor", []):
+        background.draw(screen, item)
 
     for npc in room["npcs"]:
         npc.draw(screen)
