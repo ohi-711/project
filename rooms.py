@@ -6,7 +6,6 @@ rooms = {
         "name": "Starting Room",
         "decor": [
             {"type": "cloud", "x": 80, "y": 80},
-            {"type": "star", "x": 220, "y": 120, "size": 10},
         ],
         "npcs": [
             NPC(500, 400, "Old Man", (200, 170, 100),
@@ -18,9 +17,18 @@ rooms = {
         "name": "Sky Room",
         "decor": [
             {"type": "cloud", "x": 120, "y": 80},
-            {"type": "star", "x": 900, "y": 100, "size": 12},
-            {"type": "tree", "x": 120, "y": 420},
-            {"type": "tree", "x": 800, "y": 350},
+            {"type": "cloud", "x": 760, "y": 60},
+            {"type": "star", "x": 80, "y": 60, "size": 10},
+            {"type": "star", "x": 180, "y": 90, "size": 8},
+            {"type": "star", "x": 280, "y": 70, "size": 9},
+            {"type": "star", "x": 360, "y": 50, "size": 10},
+            {"type": "star", "x": 460, "y": 95, "size": 8},
+            {"type": "star", "x": 560, "y": 80, "size": 11},
+            {"type": "star", "x": 660, "y": 60, "size": 7},
+            {"type": "star", "x": 760, "y": 110, "size": 10},
+            {"type": "star", "x": 860, "y": 70, "size": 9},
+            {"type": "star", "x": 960, "y": 95, "size": 8},
+            {"type": "star", "x": 1060, "y": 60, "size": 10},
         ],
         "npcs": [
             NPC(700, 300, "Cloud Merchant", (230, 230, 230),

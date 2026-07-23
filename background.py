@@ -52,7 +52,28 @@ def draw(screen, item):
     if decor is None:
         return
 
+    size = item.get("size")
+    scale = item.get("scale")
+    pos = (item["x"], item["y"])
+
     if hasattr(decor, "render"):
-        decor.render(screen, (item["x"], item["y"]))
+        if size is not None or scale is not None:
+            frame = decor.blit_ready()
+            if size is not None:
+                frame = pygame.transform.smoothscale(frame, (size, size))
+            elif scale is not None:
+                width = int(frame.get_width() * scale)
+                height = int(frame.get_height() * scale)
+                frame = pygame.transform.smoothscale(frame, (width, height))
+            screen.blit(frame, pos)
+        else:
+            decor.render(screen, pos)
     else:
-        screen.blit(decor, (item["x"], item["y"]))
+        frame = decor
+        if size is not None:
+            frame = pygame.transform.smoothscale(frame, (size, size))
+        elif scale is not None:
+            width = int(frame.get_width() * scale)
+            height = int(frame.get_height() * scale)
+            frame = pygame.transform.smoothscale(frame, (width, height))
+        screen.blit(frame, pos)
