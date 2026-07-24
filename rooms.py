@@ -1,3 +1,4 @@
+import pygame
 from npc import NPC
 
 rooms = {
@@ -17,6 +18,12 @@ rooms = {
             {"type": "star", "x": 890, "y": 100, "size": 9},
             {"type": "star", "x": 960, "y": 90, "size": 8},
             {"type": "star", "x": 1020, "y": 60, "size": 10},
+            {"type": "rock", "x": 300, "y": 420, "size": 64},
+            {"type": "rock", "x": 620, "y": 220, "size": 48},
+        ],
+        "obstacles": [
+            pygame.Rect(300, 420, 64, 64),
+            pygame.Rect(620, 220, 48, 48),
         ],
         "npcs": [
             NPC(500, 400, "Old Man", (200, 170, 100),

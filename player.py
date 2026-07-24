@@ -14,7 +14,7 @@ class Player:
     def image(self):
         return self.sprites[self.facing]
 
-    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, npcs=None):
+    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, npcs=None, obstacles=None):
         """Moves the player and triggers on_room_change(direction) if they
         walk off an edge that has a connected room."""
         # compute movement delta
@@ -35,7 +35,7 @@ class Player:
         # get player size from current image
         player_size = self.image.get_rect().size
 
-        # apply horizontal movement and check NPC collisions using swept rect
+        # apply horizontal movement and check collisions using swept rect
         if dx != 0:
             new_x = self.pos.x + dx
             left = min(self.pos.x, new_x)
@@ -47,10 +47,15 @@ class Player:
                     if hasattr(npc, "rect") and swept.colliderect(npc.rect):
                         blocked = True
                         break
+            if obstacles and not blocked:
+                for obstacle in obstacles:
+                    if swept.colliderect(obstacle):
+                        blocked = True
+                        break
             if not blocked:
                 self.pos.x = new_x
 
-        # apply vertical movement and check NPC collisions using swept rect
+        # apply vertical movement and check collisions using swept rect
         if dy != 0:
             new_y = self.pos.y + dy
             top = min(self.pos.y, new_y)
@@ -60,6 +65,11 @@ class Player:
             if npcs:
                 for npc in npcs:
                     if hasattr(npc, "rect") and swept.colliderect(npc.rect):
+                        blocked = True
+                        break
+            if obstacles and not blocked:
+                for obstacle in obstacles:
+                    if swept.colliderect(obstacle):
                         blocked = True
                         break
             if not blocked:

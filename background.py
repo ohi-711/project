@@ -37,6 +37,7 @@ def load_decor_sprites():
     decor_sprites = {
         "cloud": _load_gif_or_static("assets/environment/cloud1.gif"),
         "star": _load_gif_or_static("assets/environment/star1.gif"),
+        "rock": pygame.image.load("assets/environment/rock1.png").convert_alpha(),
     }
 
 
@@ -70,7 +71,14 @@ def draw(screen, item):
             decor.render(screen, pos)
     else:
         frame = decor
-        if size is not None:
+        if item_type == "rock" and (size is not None or scale is not None):
+            if size is not None:
+                frame = pygame.transform.smoothscale(frame, (size, size))
+            elif scale is not None:
+                width = int(frame.get_width() * scale)
+                height = int(frame.get_height() * scale)
+                frame = pygame.transform.smoothscale(frame, (width, height))
+        elif size is not None:
             frame = pygame.transform.smoothscale(frame, (size, size))
         elif scale is not None:
             width = int(frame.get_width() * scale)
