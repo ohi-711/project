@@ -20,8 +20,16 @@ rooms = {
         ],
         "npcs": [
             NPC(500, 400, "Old Man", (200, 170, 100),
-                ["Ah, a traveler.", "Head east to reach the Sky Room."],
-                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54)),
+                ["Ah, a traveler.", "Take this torn map fragment — you'll need it."],
+                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
+                clue_id="map_fragment",
+                repeat_lines=["Safe travels. Head east to reach the Sky Room."]),
+
+            NPC(750, 250, "Hooded Stranger", (120, 90, 90),
+                ["Psst... take this rusted key.", "Don't let anyone see it."],
+                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
+                clue_id="rusted_key",
+                repeat_lines=["Keep that key safe."]),
         ],
     },
     "room2": {
@@ -44,14 +52,24 @@ rooms = {
         ],
         "npcs": [
             NPC(700, 300, "Cloud Merchant", (230, 230, 230),
-                ["Fancy some cloud silk?", "It's very light."],
-                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54)),
+                ["Fancy some cloud silk?", "Actually... take this ancient coin, on the house."],
+                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
+                clue_id="ancient_coin",
+                repeat_lines=["Come back anytime."]),
         ],
     },
     "room3": {
         "color": (70, 110, 80),
         "name": "Cave Room",
-        "npcs": [],
+        "npcs": [
+            NPC(600, 350, "Guardian", (180, 40, 40), size=(48, 64),
+                lines=["You lack the relics needed to pass.",
+                       "Return when you've gathered them all."],
+                required_clues=["map_fragment", "rusted_key", "ancient_coin"],
+                on_all_clues_lines=["So... you've gathered them all.",
+                                     "Let's see if you're truly worthy.",
+                                     "Prepare yourself!"]),
+        ],
     },
 }
 

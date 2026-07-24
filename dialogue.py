@@ -11,6 +11,7 @@ class DialogueBox:
         self.speaker = ""
         self.lines = []
         self.line_index = 0
+        self.on_complete = None
         self.font = pygame.font.SysFont(None, 32)
         self.name_font = pygame.font.SysFont(None, 28, bold=True)
 
@@ -19,17 +20,22 @@ class DialogueBox:
         self.box_rect = pygame.Rect(40, HEIGHT - self.box_height - 30,
                                      WIDTH - 80, self.box_height)
 
-    def start(self, speaker, lines):
+    def start(self, speaker, lines, on_complete=None):
         self.speaker = speaker
         self.lines = lines
         self.line_index = 0
         self.active = True
+        self.on_complete = on_complete
 
     def advance(self):
         """Call this when the player presses the 'continue' key."""
         self.line_index += 1
         if self.line_index >= len(self.lines):
             self.active = False
+            if self.on_complete:
+                callback = self.on_complete
+                self.on_complete = None
+                callback()
 
     def _wrap_text(self, text, max_width):
         words = text.split(" ")

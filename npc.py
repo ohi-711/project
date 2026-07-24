@@ -2,6 +2,7 @@ import pygame
 import gif_pygame
 from PIL import Image
 from settings import INTERACT_RANGE
+from game_state import game_state
 
 
 def _load_gif_animation(path, size=None):
@@ -24,7 +25,9 @@ def _load_gif_animation(path, size=None):
 
 
 class NPC:
-    def __init__(self, x, y, name, color, lines, size=(40, 60), image_path=None, image_size=None):
+    def __init__(self, x, y, name, color, lines, size=(40, 60), image_path=None, image_size=None,
+                 clue_id=None, repeat_lines=None,
+                 required_clues=None, on_all_clues_lines=None):
         self.pos = pygame.Vector2(x, y)
         self.name = name
         self.color = color
@@ -33,6 +36,12 @@ class NPC:
         self.image_size = image_size
         self.image = None
         self.rect = pygame.Rect(x, y, *size)
+
+        # --- clue / boss-gate behavior ---
+        self.clue_id = clue_id                      # clue this NPC gives out, if any
+        self.repeat_lines = repeat_lines or lines    # shown on repeat visits after clue given
+        self.required_clues = required_clues         # list of clue_ids needed to trigger the boss
+        self.on_all_clues_lines = on_all_clues_lines  # lines shown once all clues are gathered
 
     def _ensure_image(self):
         if self.image_path and self.image is None:
@@ -55,6 +64,28 @@ class NPC:
 
     def is_near(self, player_pos):
         return self.pos.distance_to(player_pos) <= INTERACT_RANGE
+
+    def get_dialogue(self):
+        """Returns (lines, triggers_battle) for the current interaction.
+
+        - Boss-gate NPCs (required_clues set) show a "not ready" message
+          until all required clues are collected, then trigger the battle.
+        - Clue-giving NPCs (clue_id set) hand out their clue on first talk,
+          then fall back to repeat_lines afterward.
+        - Plain NPCs just cycle their normal lines.
+        """
+        if self.required_clues is not None:
+            if game_state.has_all(self.required_clues):
+                return self.on_all_clues_lines or self.lines, True
+            return self.lines, False
+
+        if self.clue_id is not None:
+            if not game_state.has(self.clue_id):
+                game_state.collect(self.clue_id)
+                return self.lines, False
+            return self.repeat_lines, False
+
+        return self.lines, False
 
     def draw(self, screen):
         self._ensure_image()

@@ -24,10 +24,24 @@ player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
 current_room = "room1"
 
-
 def change_room(new_room):
     global current_room
     current_room = new_room
+
+
+def start_boss_battle():
+    """Placeholder for the real boss battle -- for now, just shows some
+    filler dialogue so the flow can be tested end-to-end. Swap this out
+    later for whatever battle system you build."""
+    dialogue_box.start(
+        "???",
+        [
+            "The ground shakes as a shadow rises before you...",
+            "(Boss battle would start here!)",
+            "You strike true. The Guardian falls.",
+            "You have proven yourself worthy.",
+        ],
+    )
 
 
 running = True
@@ -44,7 +58,11 @@ while running:
                 # look for a nearby NPC to start talking to
                 for npc in rooms[current_room]["npcs"]:
                     if npc.is_near(player.pos):
-                        dialogue_box.start(npc.name, npc.lines)
+                        lines, triggers_battle = npc.get_dialogue()
+                        dialogue_box.start(
+                            npc.name, lines,
+                            on_complete=start_boss_battle if triggers_battle else None,
+                        )
                         break
 
     keys = pygame.key.get_pressed()
