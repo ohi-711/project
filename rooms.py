@@ -3,8 +3,9 @@ from npc import NPC
 
 rooms = {
     "room1": {
-        "color": (140, 90, 180),
+        "color": (80, 50, 110),
         "name": "Starting Room",
+        "sky": {"height": 200, "color": (100, 170, 240)},
         "decor": [
             {"type": "cloud", "x": 80, "y": 80},
             {"type": "star", "x": 90, "y": 60, "size": 10},
@@ -26,13 +27,13 @@ rooms = {
             pygame.Rect(620, 220, 48, 48),
         ],
         "npcs": [
-            NPC(500, 400, "Old Man", (200, 170, 100),
+            NPC(500, 400, "Old Slime", (200, 170, 100),
                 ["Ah, a traveler.", "Take this torn map fragment — you'll need it."],
                 image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
                 clue_id="map_fragment",
                 repeat_lines=["Safe travels. Head east to reach the Sky Room."]),
 
-            NPC(750, 250, "Hooded Stranger", (120, 90, 90),
+            NPC(750, 250, "Hooded Slime", (120, 90, 90),
                 ["Psst... take this rusted key.", "Don't let anyone see it."],
                 image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
                 clue_id="rusted_key",
@@ -40,8 +41,9 @@ rooms = {
         ],
     },
     "room2": {
-        "color": (90, 140, 200),
+        "color": (50, 90, 130),
         "name": "Sky Room",
+        "sky": {"height": 200, "color": (100, 170, 240)},
         "decor": [
             {"type": "cloud", "x": 120, "y": 80},
             {"type": "cloud", "x": 760, "y": 60},
@@ -58,7 +60,7 @@ rooms = {
             {"type": "star", "x": 1060, "y": 60, "size": 10},
         ],
         "npcs": [
-            NPC(700, 300, "Cloud Merchant", (230, 230, 230),
+            NPC(700, 300, "Cloud Slime", (230, 230, 230),
                 ["Fancy some cloud silk?", "Actually... take this ancient coin, on the house."],
                 image_path="assets/sprites/npc_blob.gif", image_size=(42, 54),
                 clue_id="ancient_coin",

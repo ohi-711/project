@@ -67,8 +67,13 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    # freeze movement while a conversation is open
     if not dialogue_box.active:
+        room = rooms[current_room]
+        obstacles = list(room.get("obstacles", []))
+        sky = room.get("sky")
+        if sky:
+            obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
+
         player.handle_movement(
             keys,
             dt,
@@ -76,13 +81,17 @@ while running:
             HEIGHT,
             current_room,
             change_room,
-            rooms[current_room].get("npcs", []),
-            rooms[current_room].get("obstacles", []),
+            room.get("npcs", []),
+            obstacles,
         )
 
     # --- draw ---
     room = rooms[current_room]
     screen.fill(room["color"])
+
+    sky = room.get("sky")
+    if sky:
+        pygame.draw.rect(screen, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
 
     for item in room.get("decor", []):
         background.draw(screen, item)
