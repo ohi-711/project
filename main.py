@@ -63,9 +63,6 @@ while running:
     for npc in room["npcs"]:
         npc.draw(screen)
 
-    room_label = font.render(room["name"], True, "white")
-    screen.blit(room_label, (20, 20))
-
     player.draw(screen)
     dialogue_box.draw(screen)
 

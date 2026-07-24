@@ -6,10 +6,22 @@ rooms = {
         "name": "Starting Room",
         "decor": [
             {"type": "cloud", "x": 80, "y": 80},
+            {"type": "star", "x": 90, "y": 60, "size": 10},
+            {"type": "star", "x": 180, "y": 90, "size": 8},
+            {"type": "star", "x": 280, "y": 75, "size": 9},
+            {"type": "star", "x": 270, "y": 50, "size": 10},
+            {"type": "star", "x": 460, "y": 80, "size": 8},
+            {"type": "star", "x": 560, "y": 75, "size": 11},
+            {"type": "star", "x": 660, "y": 60, "size": 7},
+            {"type": "star", "x": 780, "y": 110, "size": 10},
+            {"type": "star", "x": 890, "y": 100, "size": 9},
+            {"type": "star", "x": 960, "y": 90, "size": 8},
+            {"type": "star", "x": 1020, "y": 60, "size": 10},
         ],
         "npcs": [
             NPC(500, 400, "Old Man", (200, 170, 100),
-                ["Ah, a traveler.", "Head east to reach the Sky Room."]),
+                ["Ah, a traveler.", "Head east to reach the Sky Room."],
+                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54)),
         ],
     },
     "room2": {
@@ -32,15 +44,13 @@ rooms = {
         ],
         "npcs": [
             NPC(700, 300, "Cloud Merchant", (230, 230, 230),
-                ["Fancy some cloud silk?", "It's very light."]),
+                ["Fancy some cloud silk?", "It's very light."],
+                image_path="assets/sprites/npc_blob.gif", image_size=(42, 54)),
         ],
     },
     "room3": {
         "color": (70, 110, 80),
         "name": "Cave Room",
-        "decor": [
-            {"type": "star", "x": 600, "y": 90, "size": 8},
-        ],
         "npcs": [],
     },
 }
