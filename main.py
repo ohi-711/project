@@ -69,7 +69,7 @@ while running:
 
     # freeze movement while a conversation is open
     if not dialogue_box.active:
-        player.handle_movement(keys, dt, WIDTH, HEIGHT, current_room, change_room)
+        player.handle_movement(keys, dt, WIDTH, HEIGHT, current_room, change_room, rooms[current_room].get("npcs", []))
 
     # --- draw ---
     room = rooms[current_room]
