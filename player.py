@@ -15,9 +15,9 @@ class Player:
         return self.sprites[self.facing]
 
     def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, npcs=None, obstacles=None):
-        """Moves the player and triggers on_room_change(direction) if they
+        """Moves the player and runs on_room_change(direction) if they
         walk off an edge that has a connected room."""
-        # compute movement delta
+
         dx = dy = 0
         if keys[pygame.K_w]:
             self.facing = "back"
@@ -32,10 +32,9 @@ class Player:
             self.facing = "right"
             dx += PLAYER_SPEED * dt
 
-        # get player size from current image
         player_size = self.image.get_rect().size
 
-        # apply horizontal movement and check collisions using swept rect
+        # horizontal movement
         if dx != 0:
             new_x = self.pos.x + dx
             left = min(self.pos.x, new_x)
@@ -55,7 +54,7 @@ class Player:
             if not blocked:
                 self.pos.x = new_x
 
-        # apply vertical movement and check collisions using swept rect
+        # vertical movement
         if dy != 0:
             new_y = self.pos.y + dy
             top = min(self.pos.y, new_y)
@@ -78,16 +77,25 @@ class Player:
         # check room transitions after movement
         if self.pos.y < 0:
             self._try_change_room(current_room, "up", screen_w, screen_h, on_room_change)
-        if self.pos.y > screen_h:
+        if self.pos.y + player_size[1] > screen_h:
             self._try_change_room(current_room, "down", screen_w, screen_h, on_room_change)
         if self.pos.x < 0:
             self._try_change_room(current_room, "left", screen_w, screen_h, on_room_change)
-        if self.pos.x > screen_w:
+        if self.pos.x + player_size[0] > screen_w:
             self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change)
 
     def _try_change_room(self, current_room, direction, screen_w, screen_h, on_room_change):
         next_room = room_connections[current_room][direction]
         if next_room is None:
+            player_size = self.image.get_rect().size
+            if direction == "left":
+                self.pos.x = max(self.pos.x, 0)
+            elif direction == "right":
+                self.pos.x = min(self.pos.x, screen_w - player_size[0])
+            elif direction == "up":
+                self.pos.y = max(self.pos.y, 0)
+            elif direction == "down":
+                self.pos.y = min(self.pos.y, screen_h - player_size[1])
             return
         on_room_change(next_room, direction)
 
