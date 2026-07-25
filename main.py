@@ -5,9 +5,11 @@ from player import Player
 from dialogue import DialogueBox
 import boss_battle
 import background
+import vision
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+world_surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Room Transition Demo")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 36)
@@ -75,21 +77,24 @@ while running:
             obstacles,
         )
 
-    # --- draw ---
+    # --- draw ---, 
     room = rooms[current_room]
-    screen.fill(room["color"])
+    world_surface.fill(room["color"])
 
     sky = room.get("sky")
     if sky:
-        pygame.draw.rect(screen, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
+        pygame.draw.rect(world_surface, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
 
     for item in room.get("decor", []):
-        background.draw(screen, item)
+        background.draw(world_surface, item)
 
     for npc in room["npcs"]:
-        npc.draw(screen)
+        npc.draw(world_surface)
 
-    player.draw(screen)
+    player.draw(world_surface)
+
+    vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
+
     dialogue_box.draw(screen)
 
     pygame.display.flip()
