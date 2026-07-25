@@ -67,14 +67,7 @@ class NPC:
         return self.pos.distance_to(player_pos) <= INTERACT_RANGE
 
     def get_dialogue(self):
-        """Returns (lines, triggers_battle) for the current interaction.
-
-        - Boss-gate NPCs (required_clues set) show a "not ready" message
-          until all required clues are collected, then trigger the battle.
-        - Clue-giving NPCs (clue_id set) hand out their clue on first talk,
-          then fall back to repeat_lines afterward.
-        - Plain NPCs just cycle their normal lines.
-        """
+        # Returns (lines, triggers_battle) for the current interaction.
         if self.required_clues is not None:
             if game_state.has_all(self.required_clues):
                 return self.on_all_clues_lines or self.lines, True
