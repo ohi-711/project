@@ -89,7 +89,9 @@ class Player:
         next_room = room_connections[current_room][direction]
         if next_room is None:
             return
-        # snap the player to the opposite edge of the new room
+        on_room_change(next_room, direction)
+
+    def snap_to_edge(self, direction, screen_w, screen_h):
         if direction == "left":
             self.pos.x = screen_w - 40
         elif direction == "right":
@@ -98,7 +100,6 @@ class Player:
             self.pos.y = screen_h - 40
         elif direction == "down":
             self.pos.y = 40
-        on_room_change(next_room)
 
     def draw(self, screen):
         screen.blit(self.image, self.pos)

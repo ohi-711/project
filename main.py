@@ -26,10 +26,33 @@ sprites = {
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
 current_room = "room1"
+transition_state = {
+    "active": False,
+    "phase": None,
+    "alpha": 0,
+    "target_room": None,
+    "direction": None,
+}
 
-def change_room(new_room):
+
+def request_room_change(new_room, direction):
+    global transition_state
+    if transition_state["active"]:
+        return
+    transition_state.update({
+        "active": True,
+        "phase": "out",
+        "alpha": 0,
+        "target_room": new_room,
+        "direction": direction,
+    })
+
+
+def _complete_room_change():
     global current_room
-    current_room = new_room
+    current_room = transition_state["target_room"]
+    player.snap_to_edge(transition_state["direction"], WIDTH, HEIGHT)
+    transition_state["phase"] = "in"
 
 
 def start_boss_battle():
@@ -59,8 +82,8 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    if not dialogue_box.active:
-        room = rooms[current_room]
+    room = rooms[current_room]
+    if not dialogue_box.active and not transition_state["active"]:
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
         if sky:
@@ -72,10 +95,26 @@ while running:
             WIDTH,
             HEIGHT,
             current_room,
-            change_room,
+            request_room_change,
             room.get("npcs", []),
             obstacles,
         )
+
+    FADE_SPEED = 900
+    if transition_state["active"]:
+        if transition_state["phase"] == "out":
+            transition_state["alpha"] += FADE_SPEED * dt
+            if transition_state["alpha"] >= 255:
+                transition_state["alpha"] = 255
+                _complete_room_change()
+        else:
+            transition_state["alpha"] -= FADE_SPEED * dt
+            if transition_state["alpha"] <= 0:
+                transition_state["alpha"] = 0
+                transition_state["active"] = False
+                transition_state["phase"] = None
+                transition_state["target_room"] = None
+                transition_state["direction"] = None
 
     # --- draw ---, 
     room = rooms[current_room]
@@ -96,6 +135,12 @@ while running:
     vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
 
     dialogue_box.draw(screen)
+
+    if transition_state["active"]:
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(int(transition_state["alpha"]))
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
 
     pygame.display.flip()
     dt = clock.tick(FPS) / 1000
