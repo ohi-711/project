@@ -77,13 +77,20 @@ rooms = {
                 required_clues=["map_fragment", "rusted_key", "ancient_coin"],
                 on_all_clues_lines=["So... you've gathered them all.",
                                      "Let's see if you're truly worthy.",
-                                     "Prepare yourself!"]),
+                                     "Prepare yourself!"],
+                boss_key="guardian"),
         ],
+    },
+    "room4": {
+        "color": (50, 90, 80),
+        "name": "Grass Room",
+        "npcs": [],
     },
 }
 
 room_connections = {
-    "room1": {"left": None, "right": "room2", "up": None, "down": None},
+    "room1": {"left": None, "right": "room2", "up": None, "down": "room4"},
     "room2": {"left": "room1", "right": None, "up": None, "down": "room3"},
-    "room3": {"left": None, "right": None, "up": "room2", "down": None},
+    "room3": {"left": "room4", "right": None, "up": "room2", "down": None},
+    "room4": {"left": None, "right": "room3", "up": "room1", "down": None},
 }

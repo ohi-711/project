@@ -27,7 +27,7 @@ def _load_gif_animation(path, size=None):
 class NPC:
     def __init__(self, x, y, name, color, lines, size=(40, 60), image_path=None, image_size=None,
                  clue_id=None, repeat_lines=None,
-                 required_clues=None, on_all_clues_lines=None):
+                 required_clues=None, on_all_clues_lines=None, boss_key=None):
         self.pos = pygame.Vector2(x, y)
         self.name = name
         self.color = color
@@ -42,6 +42,7 @@ class NPC:
         self.repeat_lines = repeat_lines or lines    # shown on repeat visits after clue given
         self.required_clues = required_clues         # list of clue_ids needed to trigger the boss
         self.on_all_clues_lines = on_all_clues_lines  # lines shown once all clues are gathered
+        self.boss_key = boss_key
 
     def _ensure_image(self):
         if self.image_path and self.image is None:

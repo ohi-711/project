@@ -3,6 +3,7 @@ from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR
 from rooms import rooms
 from player import Player
 from dialogue import DialogueBox
+import boss_battle
 import background
 
 pygame.init()
@@ -30,18 +31,7 @@ def change_room(new_room):
 
 
 def start_boss_battle():
-    """Placeholder for the real boss battle -- for now, just shows some
-    filler dialogue so the flow can be tested end-to-end. Swap this out
-    later for whatever battle system you build."""
-    dialogue_box.start(
-        "???",
-        [
-            "The ground shakes as a shadow rises before you...",
-            "(Boss battle would start here!)",
-            "You strike true. The Guardian falls.",
-            "You have proven yourself worthy.",
-        ],
-    )
+    boss_battle.start_boss_battle(dialogue_box, boss_key="guardian")
 
 
 running = True
@@ -61,7 +51,7 @@ while running:
                         lines, triggers_battle = npc.get_dialogue()
                         dialogue_box.start(
                             npc.name, lines,
-                            on_complete=start_boss_battle if triggers_battle else None,
+                            on_complete=(lambda boss_key=npc.boss_key or "guardian": boss_battle.start_boss_battle(dialogue_box, boss_key=boss_key)) if triggers_battle else None,
                         )
                         break
 
