@@ -8,7 +8,7 @@ BOSS_DIALOGUE = {
 }
 
 
-from transport import start_transport_dialogue
+from transport import start_transport_segment
 
 
 def start_boss_battle(dialogue_box, boss_key="guardian", on_complete=None):
@@ -21,14 +21,17 @@ def start_boss_battle(dialogue_box, boss_key="guardian", on_complete=None):
     if lines is None:
         raise ValueError(f"Unknown boss battle key: {boss_key}")
 
-    # when boss dialogue finishes, unlock transport and show its dialogue
+    # when boss dialogue finishes, unlock transport and initiate planet travel
     def _after_boss():
-        # start transport dialogue for this boss (if any)
         try:
-            start_transport_dialogue(dialogue_box, "stargate")
+            start_transport_segment(
+                dialogue_box,
+                transport_id="stargate",
+                destination_planet="nova",
+                on_complete=on_complete,
+            )
         except Exception:
-            pass
-        if on_complete:
-            on_complete()
+            if on_complete:
+                on_complete()
 
     dialogue_box.start("???", list(lines), on_complete=_after_boss)

@@ -3,6 +3,7 @@ import gif_pygame
 from PIL import Image
 
 decor_sprites = {}
+background_surfaces = {}
 
 
 def _load_gif_animation(path):
@@ -30,6 +31,14 @@ def _load_gif_or_static(path):
             return pygame.image.load(path).convert_alpha()
         except Exception:
             return None
+
+
+def _load_background(path):
+    try:
+        surface = pygame.image.load(path)
+        return surface.convert()
+    except Exception:
+        return None
 
 
 def load_decor_sprites():
@@ -85,3 +94,24 @@ def draw(screen, item):
             height = int(frame.get_height() * scale)
             frame = pygame.transform.smoothscale(frame, (width, height))
         screen.blit(frame, pos)
+
+
+def draw_room_background(screen, room):
+    background_path = room.get("background_image")
+    if not background_path:
+        return False
+
+    background_surface = background_surfaces.get(background_path)
+    if background_surface is None:
+        background_surface = _load_background(background_path)
+        background_surfaces[background_path] = background_surface
+
+    if background_surface is None:
+        return False
+
+    if background_surface.get_size() != screen.get_size():
+        background_surface = pygame.transform.smoothscale(background_surface, screen.get_size())
+        background_surfaces[background_path] = background_surface
+
+    screen.blit(background_surface, (0, 0))
+    return True

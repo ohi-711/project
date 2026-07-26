@@ -70,6 +70,7 @@ rooms = {
     "room3": {
         "color": (70, 110, 80),
         "name": "Cave Room",
+        "background_image": "assets/backgrounds/background3.png",
         "npcs": [
             NPC(600, 350, "Guardian", (180, 40, 40), size=(48, 64),
                 lines=["You lack the relics needed to pass.",
@@ -84,6 +85,7 @@ rooms = {
     "room4": {
         "color": (50, 90, 80),
         "name": "Grass Room",
+        "background_image": "assets/backgrounds/background4.png",
         "npcs": [],
     },
 }

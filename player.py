@@ -1,6 +1,5 @@
 import pygame
 from settings import PLAYER_SPEED
-from rooms import room_connections
 
 
 class Player:
@@ -14,7 +13,7 @@ class Player:
     def image(self):
         return self.sprites[self.facing]
 
-    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, npcs=None, obstacles=None):
+    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, room_connections, npcs=None, obstacles=None):
         """Moves the player and runs on_room_change(direction) if they
         walk off an edge that has a connected room."""
 
@@ -76,15 +75,15 @@ class Player:
 
         # check room transitions after movement
         if self.pos.y < 0:
-            self._try_change_room(current_room, "up", screen_w, screen_h, on_room_change)
+            self._try_change_room(current_room, "up", screen_w, screen_h, on_room_change, room_connections)
         if self.pos.y + player_size[1] > screen_h:
-            self._try_change_room(current_room, "down", screen_w, screen_h, on_room_change)
+            self._try_change_room(current_room, "down", screen_w, screen_h, on_room_change, room_connections)
         if self.pos.x < 0:
-            self._try_change_room(current_room, "left", screen_w, screen_h, on_room_change)
+            self._try_change_room(current_room, "left", screen_w, screen_h, on_room_change, room_connections)
         if self.pos.x + player_size[0] > screen_w:
-            self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change)
+            self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change, room_connections)
 
-    def _try_change_room(self, current_room, direction, screen_w, screen_h, on_room_change):
+    def _try_change_room(self, current_room, direction, screen_w, screen_h, on_room_change, room_connections):
         next_room = room_connections[current_room][direction]
         if next_room is None:
             player_size = self.image.get_rect().size
@@ -108,6 +107,9 @@ class Player:
             self.pos.y = screen_h - 40
         elif direction == "down":
             self.pos.y = 40
+
+    def center_on_screen(self, screen_w, screen_h):
+        self.pos = pygame.Vector2(screen_w / 2, screen_h / 2)
 
     def draw(self, screen):
         screen.blit(self.image, self.pos)

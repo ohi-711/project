@@ -1,6 +1,6 @@
 import pygame
 from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR
-from rooms import rooms
+import planet_manager
 from player import Player
 from dialogue import DialogueBox
 import boss_battle
@@ -25,7 +25,6 @@ sprites = {
 
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
-current_room = "room1"
 transition_state = {
     "active": False,
     "phase": None,
@@ -49,14 +48,17 @@ def request_room_change(new_room, direction):
 
 
 def _complete_room_change():
-    global current_room
-    current_room = transition_state["target_room"]
+    planet_manager.set_current_room(transition_state["target_room"])
     player.snap_to_edge(transition_state["direction"], WIDTH, HEIGHT)
     transition_state["phase"] = "in"
 
 
 def start_boss_battle():
-    boss_battle.start_boss_battle(dialogue_box, boss_key="guardian")
+    boss_battle.start_boss_battle(
+        dialogue_box,
+        boss_key="guardian",
+        on_complete=lambda: player.center_on_screen(WIDTH, HEIGHT),
+    )
 
 
 running = True
@@ -71,7 +73,8 @@ while running:
                 dialogue_box.advance()
             else:
                 # look for a nearby NPC to start talking to
-                for npc in rooms[current_room]["npcs"]:
+                current_room_data = planet_manager.get_current_room_data()
+                for npc in current_room_data["npcs"]:
                     if npc.is_near(player.pos):
                         lines, triggers_battle = npc.get_dialogue()
                         dialogue_box.start(
@@ -82,7 +85,7 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    room = rooms[current_room]
+    room = planet_manager.get_current_room_data()
     if not dialogue_box.active and not transition_state["active"]:
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
@@ -94,8 +97,9 @@ while running:
             dt,
             WIDTH,
             HEIGHT,
-            current_room,
+            planet_manager.current_room,
             request_room_change,
+            planet_manager.get_current_connections(),
             room.get("npcs", []),
             obstacles,
         )
@@ -117,12 +121,12 @@ while running:
                 transition_state["direction"] = None
 
     # --- draw ---, 
-    room = rooms[current_room]
-    world_surface.fill(room["color"])
-
-    sky = room.get("sky")
-    if sky:
-        pygame.draw.rect(world_surface, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
+    room = planet_manager.get_current_room_data()
+    if not background.draw_room_background(world_surface, room):
+        world_surface.fill(room["color"])
+        sky = room.get("sky")
+        if sky:
+            pygame.draw.rect(world_surface, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
 
     for item in room.get("decor", []):
         background.draw(world_surface, item)
