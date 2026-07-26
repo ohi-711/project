@@ -4,6 +4,8 @@ import planet_manager
 from player import Player
 from dialogue import DialogueBox
 import boss_battle
+import courtroom_battle
+from transport import start_transport_segment
 import background
 import vision
 
@@ -25,6 +27,13 @@ sprites = {
 
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
+courtroom_battle_ui = courtroom_battle.CourtroomBattle()
+
+# boss_keys listed here fight a courtroom trial instead of the boss_battle
+# placeholder. The trial data lives in courtroom_battle.TRIALS under
+# f"{boss_key}_trial".
+TRIAL_BOSS_KEYS = {"guardian"}
+
 transition_state = {
     "active": False,
     "phase": None,
@@ -61,6 +70,32 @@ def start_boss_battle():
     )
 
 
+def _after_guardian_trial():
+    """Called when the player wins the courtroom trial. Same follow-up as
+    boss_battle's guardian fight used to have: unlock the stargate and
+    travel to Nova Prime."""
+    def _finish():
+        player.center_on_screen(WIDTH, HEIGHT)
+
+    try:
+        start_transport_segment(
+            dialogue_box,
+            transport_id="stargate",
+            destination_planet="nova",
+            on_complete=_finish,
+        )
+    except Exception:
+        _finish()
+
+
+def _guardian_trial_failed():
+    """Called when the player runs out of Resolve during the trial."""
+    dialogue_box.start(
+        "Guardian",
+        ["The Guardian remains unconvinced.", "Gather stronger evidence and return."],
+    )
+
+
 running = True
 dt = 0
 
@@ -68,6 +103,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        if courtroom_battle_ui.active:
+            courtroom_battle_ui.handle_event(event)
+            continue
+
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
             if dialogue_box.active:
                 dialogue_box.advance()
@@ -77,16 +117,27 @@ while running:
                 for npc in current_room_data["npcs"]:
                     if npc.is_near(player.pos):
                         lines, triggers_battle = npc.get_dialogue()
+
+                        def _start_battle(boss_key=npc.boss_key or "guardian"):
+                            if boss_key in TRIAL_BOSS_KEYS:
+                                courtroom_battle_ui.start(
+                                    f"{boss_key}_trial",
+                                    on_complete=_after_guardian_trial,
+                                    on_fail=_guardian_trial_failed,
+                                )
+                            else:
+                                boss_battle.start_boss_battle(dialogue_box, boss_key=boss_key)
+
                         dialogue_box.start(
                             npc.name, lines,
-                            on_complete=(lambda boss_key=npc.boss_key or "guardian": boss_battle.start_boss_battle(dialogue_box, boss_key=boss_key)) if triggers_battle else None,
+                            on_complete=_start_battle if triggers_battle else None,
                         )
                         break
 
     keys = pygame.key.get_pressed()
 
     room = planet_manager.get_current_room_data()
-    if not dialogue_box.active and not transition_state["active"]:
+    if not dialogue_box.active and not courtroom_battle_ui.active and not transition_state["active"]:
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
         if sky:
@@ -139,6 +190,7 @@ while running:
     vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
 
     dialogue_box.draw(screen)
+    courtroom_battle_ui.draw(screen)
 
     if transition_state["active"]:
         overlay = pygame.Surface((WIDTH, HEIGHT))
