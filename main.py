@@ -71,9 +71,6 @@ def start_boss_battle():
 
 
 def _after_guardian_trial():
-    """Called when the player wins the courtroom trial. Same follow-up as
-    boss_battle's guardian fight used to have: unlock the stargate and
-    travel to Nova Prime."""
     def _finish():
         player.center_on_screen(WIDTH, HEIGHT)
 
@@ -89,7 +86,7 @@ def _after_guardian_trial():
 
 
 def _guardian_trial_failed():
-    """Called when the player runs out of Resolve during the trial."""
+    # Called when the player runs out of Resolve during the trial.
     dialogue_box.start(
         "Guardian",
         ["The Guardian remains unconvinced.", "Gather stronger evidence and return."],
@@ -142,6 +139,30 @@ while running:
         sky = room.get("sky")
         if sky:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
+
+        # Auto-add obstacles for trees, rocks, etc.
+        decor_obstacle_types = {"tree1", "tree2", "tree3", "rock"}
+        for item in room.get("decor", []):
+            t = item.get("type")
+            if t in decor_obstacle_types:
+                x = item.get("x", 0)
+                y = item.get("y", 0)
+                size = item.get("size")
+                scale = item.get("scale")
+                if size is not None:
+                    w = h = int(size)
+                elif scale is not None:
+                    native = background.get_native_size(t) or (32, 32)
+                    w = int(native[0] * scale)
+                    h = int(native[1] * scale)
+                else:
+                    native = background.get_native_size(t)
+                    if native is None:
+                        w, h = (32, 32)
+                    else:
+                        w, h = native
+
+                obstacles.append(pygame.Rect(x, y, w, h))
 
         player.handle_movement(
             keys,

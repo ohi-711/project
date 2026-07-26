@@ -47,7 +47,32 @@ def load_decor_sprites():
         "cloud": _load_gif_or_static("assets/environment/cloud1.gif"),
         "star": _load_gif_or_static("assets/environment/star1.gif"),
         "rock": pygame.image.load("assets/environment/rock1.png").convert_alpha(),
+        "tree1": pygame.image.load("assets/environment/tree1.png").convert_alpha(),
+        "tree2": pygame.image.load("assets/environment/tree2.png").convert_alpha(),
+        "tree3": pygame.image.load("assets/environment/tree3.png").convert_alpha(),
     }
+
+
+def get_native_size(item_type):
+    #Return the native (width, height) of a decor asset. None if unknown.
+
+    if not decor_sprites:
+        load_decor_sprites()
+
+    decor = decor_sprites.get(item_type)
+    if decor is None:
+        return None
+
+    try:
+        if hasattr(decor, "blit_ready"):
+            frame = decor.blit_ready()
+            return frame.get_size()
+        if isinstance(decor, pygame.Surface):
+            return decor.get_size()
+    except Exception:
+        return None
+
+    return None
 
 
 def draw(screen, item):

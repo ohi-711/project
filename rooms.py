@@ -20,12 +20,20 @@ rooms = {
             {"type": "star", "x": 890, "y": 100, "size": 9},
             {"type": "star", "x": 960, "y": 90, "size": 8},
             {"type": "star", "x": 1020, "y": 60, "size": 10},
-            {"type": "rock", "x": 300, "y": 420, "size": 64},
-            {"type": "rock", "x": 620, "y": 220, "size": 48},
+                {"type": "tree1", "x": 200, "y": 360, "size": None},
+                {"type": "tree2", "x": 520, "y": 320, "size": None},
+                {"type": "tree3", "x": 820, "y": 380, "size": None},
+                {"type": "rock", "x": 300, "y": 420, "size": 64},
+                {"type": "rock", "x": 620, "y": 220, "size": 48},
         ],
         "obstacles": [
+            # rocks
             pygame.Rect(300, 420, 64, 64),
             pygame.Rect(620, 220, 48, 48),
+            # trees (use full asset size 64x64 hitboxes)
+            pygame.Rect(200, 360, 64, 64),
+            pygame.Rect(520, 320, 64, 64),
+            pygame.Rect(820, 380, 64, 64),
         ],
         "npcs": [
             NPC(500, 400, "Old Slime", (200, 170, 100),
