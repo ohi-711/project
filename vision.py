@@ -3,7 +3,7 @@ import pygame
 
 def apply_vision_zoom(display_screen, world_surface, center_pos, screen_w, screen_h, coverage=0.7):
     """
-    Call after drawing the room to world_surface, and draw any UI directly onto `display_screen` afterward.
+    Call after drawing the room to world_surface, and draw any UI directly onto `display_screen` after.
     """
     box_w = int(screen_w * coverage)
     box_h = int(screen_h * coverage)

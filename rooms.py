@@ -44,6 +44,7 @@ rooms = {
     "room2": {
         "color": (50, 90, 130),
         "name": "Sky Room",
+        "background_image": "assets/backgrounds/background4.png",
         "sky": {"height": 200, "color": (100, 170, 240)},
         "decor": [
             {"type": "cloud", "x": 120, "y": 80},
