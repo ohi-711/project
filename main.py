@@ -122,11 +122,11 @@ while running:
 
     # --- draw ---, 
     room = planet_manager.get_current_room_data()
-    if not background.draw_room_background(world_surface, room):
-        world_surface.fill(room["color"])
-        sky = room.get("sky")
-        if sky:
-            pygame.draw.rect(world_surface, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
+    world_surface.fill(room["color"])
+    sky = room.get("sky")
+    if sky:
+        pygame.draw.rect(world_surface, sky["color"], pygame.Rect(0, 0, WIDTH, sky["height"]))
+    background.draw_room_background(world_surface, room)
 
     for item in room.get("decor", []):
         background.draw(world_surface, item)

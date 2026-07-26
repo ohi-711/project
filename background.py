@@ -109,9 +109,15 @@ def draw_room_background(screen, room):
     if background_surface is None:
         return False
 
-    if background_surface.get_size() != screen.get_size():
-        background_surface = pygame.transform.smoothscale(background_surface, screen.get_size())
+    sky = room.get("sky")
+    if sky:
+        target_rect = pygame.Rect(0, sky["height"], screen.get_width(), screen.get_height() - sky["height"])
+    else:
+        target_rect = screen.get_rect()
+
+    if background_surface.get_size() != (target_rect.width, target_rect.height):
+        background_surface = pygame.transform.smoothscale(background_surface, (target_rect.width, target_rect.height))
         background_surfaces[background_path] = background_surface
 
-    screen.blit(background_surface, (0, 0))
+    screen.blit(background_surface, target_rect.topleft)
     return True

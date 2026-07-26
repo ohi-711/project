@@ -5,6 +5,7 @@ rooms = {
     "room1": {
         "color": (80, 50, 110),
         "name": "Starting Room",
+        "background_image": "assets/backgrounds/background2.png",
         "sky": {"height": 200, "color": (100, 170, 240)},
         "decor": [
             {"type": "cloud", "x": 80, "y": 80},
