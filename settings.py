@@ -10,3 +10,5 @@ DIALOGUE_BORDER = (200, 200, 200)
 
 # How close (in pixels) the player must be to an NPC to interact
 INTERACT_RANGE = 60
+
+TEXT_SPEED = 45

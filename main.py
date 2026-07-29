@@ -131,6 +131,8 @@ while running:
                         )
                         break
 
+    dialogue_box.update(dt)
+
     keys = pygame.key.get_pressed()
 
     room = planet_manager.get_current_room_data()
