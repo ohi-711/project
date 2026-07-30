@@ -6,12 +6,11 @@ TRANSPORT_DIALOGUE = {
     "stargate": [
         "A shimmering gateway opens before you...",
         "You have unlocked the Stargate — travel to distant planets is now possible.",
-        "Destination: Nova Prime. Hold on tight.",
+        "Destination: something",
     ],
     "arrival_nova": [
-        "The Stargate settles around you.",
-        "You have arrived on Nova Prime.",
-        "Explore the new rooms and find the teleporter back home.",
+        "There's nothing else here, wilt.",
+        "i havent put anything after this",
     ],
 }
 
