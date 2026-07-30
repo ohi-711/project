@@ -1,14 +1,14 @@
 # space detective lawyer game
-This title is subject to change. 
+(this title is subject to change) 
 
 ## Why I made this
 
-I wanted to make a game so I talked to a friend and decided to make a game where you can play as a detective that travels across different planets. I've never made a game before so I'm hoping to learn some stuff from this project! 
+I wanted to make a game, so I talked to a friend and decided to make a game where you can play as a detective who travels across different planets. I've never made a game before, so I'm hoping to learn some stuff from this project! 
 
 
 ## What it does
 
-In this game, you play as a intergalactic space detective who collects clues and then eventually fight a boss. In the boss fight, there will be a battle mechanic that is similar to a trial (the one currently in place is temporary and will be improved upon later). The controls for walking are W, A, S, D, and the key for interacting with NPCs is E. 
+In this game, you play as an intergalactic space detective who collects clues and then eventually fights a boss. In the boss fight, there will be a battle mechanic that is similar to a trial (the one currently in place is temporary and will be improved upon later). The controls for walking are W, A, S, D, and the key for interacting with NPCs is E. 
 
 ## How it was made
 
@@ -21,7 +21,7 @@ This game was made using just Python and Python libraries. Specific libraries us
 There are also still issues with the game/things I need to add:
 - Collision with NPCs and inanimate objects looks weird because the obstacle size set is the size of the file. However, almost all of these assets are not cropped very well, and there is a lot of blank space.
 - A lot of the assets are temporary replacements. The actual assets will be more polished and drawn later.
-- A lot of the dialogue is also temmporary and will be improved upon later.
+- A lot of the dialogue is also temporary and will be improved upon later.
 - Very few things have been added in terms of gameplay. More interesting things to do other than speak to NPCs will be added later.
 
 ## Development
@@ -42,6 +42,9 @@ There are also still issues with the game/things I need to add:
    ```
 
 ## Demo
+<img width="630" height="500" alt="thumbnail" src="https://github.com/user-attachments/assets/88c5fcda-9f70-48ba-afe6-fec94e29c3f1" />
+<img width="1596" height="893" alt="image" src="https://github.com/user-attachments/assets/d344e980-1eb0-42cb-be47-4ff0dc513f12" />
+<img width="1592" height="882" alt="image" src="https://github.com/user-attachments/assets/145e8904-7b3b-4cfe-b23c-be3598f22d2f" />
 
 
 ## AI disclosure
