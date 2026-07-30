@@ -1,13 +1,14 @@
 import pygame
 import gif_pygame
 from PIL import Image
+from resource_path import resource_path
 
 decor_sprites = {}
 background_surfaces = {}
 
 
 def _load_gif_animation(path):
-    image = Image.open(path)
+    image = Image.open(resource_path(path))
     frames = []
 
     try:
@@ -28,14 +29,14 @@ def _load_gif_or_static(path):
         return _load_gif_animation(path)
     except Exception:
         try:
-            return pygame.image.load(path).convert_alpha()
+            return pygame.image.load(resource_path(path)).convert_alpha()
         except Exception:
             return None
 
 
 def _load_background(path):
     try:
-        surface = pygame.image.load(path)
+        surface = pygame.image.load(resource_path(path))
         return surface.convert()
     except Exception:
         return None
@@ -46,10 +47,10 @@ def load_decor_sprites():
     decor_sprites = {
         "cloud": _load_gif_or_static("assets/environment/cloud1.gif"),
         "star": _load_gif_or_static("assets/environment/star1.gif"),
-        "rock": pygame.image.load("assets/environment/rock1.png").convert_alpha(),
-        "tree1": pygame.image.load("assets/environment/tree1.png").convert_alpha(),
-        "tree2": pygame.image.load("assets/environment/tree2.png").convert_alpha(),
-        "tree3": pygame.image.load("assets/environment/tree3.png").convert_alpha(),
+        "rock": pygame.image.load(resource_path("assets/environment/rock1.png")).convert_alpha(),
+        "tree1": pygame.image.load(resource_path("assets/environment/tree1.png")).convert_alpha(),
+        "tree2": pygame.image.load(resource_path("assets/environment/tree2.png")).convert_alpha(),
+        "tree3": pygame.image.load(resource_path("assets/environment/tree3.png")).convert_alpha(),
     }
 
 

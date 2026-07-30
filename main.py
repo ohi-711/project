@@ -8,6 +8,7 @@ import courtroom_battle
 from transport import start_transport_segment
 import background
 import vision
+from resource_path import resource_path
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -18,7 +19,7 @@ font = pygame.font.SysFont(None, 36)
 background.load_decor_sprites()
 
 # intro
-thumbnail_image = pygame.image.load("assets/intro/thumbnail.png").convert_alpha()
+thumbnail_image = pygame.image.load(resource_path("assets/intro/thumbnail.png")).convert_alpha()
 intro_state = "thumbnail"
 intro_timer = 0.0
 thumbnail_duration = 1.8
@@ -107,10 +108,10 @@ def draw_intro_screen(surface):
 
 # --- load sprites -----------------------------------------------------
 sprites = {
-    "front": pygame.image.load("assets/sprites/character-front.png").convert_alpha(),
-    "back": pygame.image.load("assets/sprites/character-back.png").convert_alpha(),
-    "left": pygame.image.load("assets/sprites/character-left.png").convert_alpha(),
-    "right": pygame.image.load("assets/sprites/character-right.png").convert_alpha(),
+    "front": pygame.image.load(resource_path("assets/sprites/character-front.png")).convert_alpha(),
+    "back": pygame.image.load(resource_path("assets/sprites/character-back.png")).convert_alpha(),
+    "left": pygame.image.load(resource_path("assets/sprites/character-left.png")).convert_alpha(),
+    "right": pygame.image.load(resource_path("assets/sprites/character-right.png")).convert_alpha(),
 }
 
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)

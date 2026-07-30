@@ -3,10 +3,11 @@ import gif_pygame
 from PIL import Image
 from settings import INTERACT_RANGE
 from game_state import game_state
+from resource_path import resource_path
 
 
 def _load_gif_animation(path, size=None):
-    image = Image.open(path)
+    image = Image.open(resource_path(path))
     frames = []
 
     try:
@@ -50,13 +51,13 @@ class NPC:
                 if self.image_path.lower().endswith(".gif"):
                     self.image = _load_gif_animation(self.image_path, self.image_size)
                 else:
-                    self.image = pygame.image.load(self.image_path).convert_alpha()
+                    self.image = pygame.image.load(resource_path(self.image_path)).convert_alpha()
                     if self.image_size is not None:
                         self.image = pygame.transform.smoothscale(self.image, self.image_size)
                 self.rect = self.image.get_rect(topleft=(self.pos.x, self.pos.y))
             except Exception:
                 try:
-                    self.image = pygame.image.load(self.image_path).convert_alpha()
+                    self.image = pygame.image.load(resource_path(self.image_path)).convert_alpha()
                     if self.image_size is not None:
                         self.image = pygame.transform.smoothscale(self.image, self.image_size)
                     self.rect = self.image.get_rect(topleft=(self.pos.x, self.pos.y))
