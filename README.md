@@ -17,6 +17,7 @@ This game was made using just Python and Python libraries. Specific libraries us
 ### Problems I ran into
 
 - Getting GIFs to actually render as moving images instead of a single static frame was a problem that I ran into. This is because `pygame` doesn't support animated GIFs on its own, so frames have to be decoded manually with `Pillow` and played back through `gif-pygame`.
+- Ran into some issues with making an .exe but they were resolved pretty fast as well.
 
 There are also still issues with the game/things I need to add:
 - Collision with NPCs and inanimate objects looks weird because the obstacle size set is the size of the file. However, almost all of these assets are not cropped very well, and there is a lot of blank space.
@@ -49,4 +50,4 @@ There are also still issues with the game/things I need to add:
 
 ## AI disclosure
 
-I used AI was used to make a temporary/placeholder battle system (the courtroom trial cross-examination mechanic) that I may scrap completely or make changes to. This is because I haven't fully fleshed out how the gameplay should look like. AI was also used to help add in more trees because putting them all in myself is tiring.
+I used AI was used to make a temporary/placeholder battle system (the courtroom trial cross-examination mechanic) that I may scrap completely or make changes to. This is because I haven't fully fleshed out how the gameplay should look like. AI was also used to help fix the issues I encountered when trying to make an .exe file. AI was also used to help add in more trees because putting them all in myself is tiring.
