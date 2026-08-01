@@ -218,6 +218,7 @@ rooms = {
         "name": "Grass Room",
         "background_image": "assets/backgrounds/background4.png",
         "decor": [
+            {"type": "catbuilding", "x": 70, "y": 115, "size": 192},
             {"type": "tree2", "x": 90, "y": 360},
             {"type": "tree1", "x": 360, "y": 370},
             {"type": "tree3", "x": 520, "y": 380},
@@ -227,7 +228,6 @@ rooms = {
             {"type": "tree1", "x": 1158, "y": 462},
             {"type": "tree2", "x": 330, "y": 414},
             {"type": "tree3", "x": 306, "y": 486},
-            {"type": "tree1", "x": 90, "y": 162},
             {"type": "tree2", "x": 654, "y": 522},
             {"type": "tree3", "x": 654, "y": 618},
             {"type": "tree1", "x": 1197, "y": 97},

@@ -280,8 +280,8 @@ while running:
         if sky:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
 
-        # Auto-add obstacles for trees, rocks, etc.
-        decor_obstacle_types = {"tree1", "tree2", "tree3", "rock"}
+        # Auto-add obstacles for trees, rocks, and solid decor pieces.
+        decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding"}
         for item in room.get("decor", []):
             t = item.get("type")
             if t in decor_obstacle_types:
