@@ -13,7 +13,7 @@ class Player:
     def image(self):
         return self.sprites[self.facing]
 
-    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, room_connections, npcs=None, obstacles=None):
+    def handle_movement(self, keys, dt, screen_w, screen_h, current_room, on_room_change, room_connections, npcs=None, obstacles=None, mask_obstacles=None):
         """Moves the player and runs on_room_change(direction) if they
         walk off an edge that has a connected room."""
 
@@ -51,6 +51,10 @@ class Player:
                         blocked = True
                         break
             if not blocked:
+                test_rect = pygame.Rect(new_x, self.pos.y, *player_size)
+                if self._hits_mask_obstacles(test_rect, mask_obstacles):
+                    blocked = True
+            if not blocked:
                 self.pos.x = new_x
 
         # vertical movement
@@ -71,6 +75,10 @@ class Player:
                         blocked = True
                         break
             if not blocked:
+                test_rect = pygame.Rect(self.pos.x, new_y, *player_size)
+                if self._hits_mask_obstacles(test_rect, mask_obstacles):
+                    blocked = True
+            if not blocked:
                 self.pos.y = new_y
 
         # check room transitions after movement
@@ -82,6 +90,19 @@ class Player:
             self._try_change_room(current_room, "left", screen_w, screen_h, on_room_change, room_connections)
         if self.pos.x + player_size[0] > screen_w:
             self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change, room_connections)
+
+    # for letting the player go through transparent parts of the decor.
+    def _hits_mask_obstacles(self, rect, mask_obstacles):
+        if not mask_obstacles:
+            return False
+        player_mask = pygame.Mask(rect.size, fill=True)
+        for mask, obs_rect in mask_obstacles:
+            if not rect.colliderect(obs_rect):
+                continue
+            offset = (obs_rect.x - rect.x, obs_rect.y - rect.y)
+            if player_mask.overlap(mask, offset):
+                return True
+        return False
 
     def _try_change_room(self, current_room, direction, screen_w, screen_h, on_room_change, room_connections):
         next_room = room_connections[current_room][direction]

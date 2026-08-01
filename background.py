@@ -148,3 +148,40 @@ def draw_room_background(screen, room):
 
     screen.blit(background_surface, target_rect.topleft)
     return True
+
+
+decor_masks_cache = {}
+
+# for letting the player go through transparent parts of the decor.
+def get_collision_mask(item):
+    if not decor_sprites:
+        load_decor_sprites()
+
+    item_type = item["type"]
+    decor = decor_sprites.get(item_type)
+    if decor is None:
+        return None
+
+    size = item.get("size")
+    scale = item.get("scale")
+    pos = (item["x"], item["y"])
+
+    frame = decor.blit_ready() if hasattr(decor, "blit_ready") else decor
+    if frame is None:
+        return None
+
+    if size is not None:
+        frame = pygame.transform.smoothscale(frame, (size, size))
+    elif scale is not None:
+        w = int(frame.get_width() * scale)
+        h = int(frame.get_height() * scale)
+        frame = pygame.transform.smoothscale(frame, (w, h))
+
+    cache_key = (item_type, frame.get_size())
+    mask = decor_masks_cache.get(cache_key)
+    if mask is None:
+        mask = pygame.mask.from_surface(frame)
+        decor_masks_cache[cache_key] = mask
+
+    rect = pygame.Rect(pos[0], pos[1], frame.get_width(), frame.get_height())
+    return mask, rect

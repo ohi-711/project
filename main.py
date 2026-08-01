@@ -280,29 +280,15 @@ while running:
         if sky:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
 
-        # Auto-add obstacles for trees, rocks, and solid decor pieces.
+        # Auto-add mask-based obstacles for trees, rocks, and solid decor
         decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding"}
+        mask_obstacles = []
         for item in room.get("decor", []):
             t = item.get("type")
             if t in decor_obstacle_types:
-                x = item.get("x", 0)
-                y = item.get("y", 0)
-                size = item.get("size")
-                scale = item.get("scale")
-                if size is not None:
-                    w = h = int(size)
-                elif scale is not None:
-                    native = background.get_native_size(t) or (32, 32)
-                    w = int(native[0] * scale)
-                    h = int(native[1] * scale)
-                else:
-                    native = background.get_native_size(t)
-                    if native is None:
-                        w, h = (32, 32)
-                    else:
-                        w, h = native
-
-                obstacles.append(pygame.Rect(x, y, w, h))
+                result = background.get_collision_mask(item)
+                if result is not None:
+                    mask_obstacles.append(result)
 
         player.handle_movement(
             keys,
@@ -314,6 +300,7 @@ while running:
             planet_manager.get_current_connections(),
             room.get("npcs", []),
             obstacles,
+            mask_obstacles,
         )
 
     FADE_SPEED = 900
