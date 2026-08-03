@@ -281,7 +281,7 @@ while running:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
 
         # Auto-add mask-based obstacles for trees, rocks, and solid decor
-        decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding"}
+        decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding", "bunnybuilding"}
         mask_obstacles = []
         for item in room.get("decor", []):
             t = item.get("type")

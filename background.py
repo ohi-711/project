@@ -52,6 +52,7 @@ def load_decor_sprites():
         "tree2": pygame.image.load(resource_path("assets/environment/tree2.png")).convert_alpha(),
         "tree3": pygame.image.load(resource_path("assets/environment/tree3.png")).convert_alpha(),
         "catbuilding": pygame.image.load(resource_path("assets/environment/catbuilding.png")).convert_alpha(),
+        "bunnybuilding": pygame.image.load(resource_path("assets/environment/bunnybuilding.png")).convert_alpha(),
     }
 
 
