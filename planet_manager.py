@@ -19,7 +19,11 @@ PLANETS = {
                 "decor": [
                     {"type": "star", "x": 140, "y": 90, "size": 12},
                     {"type": "star", "x": 300, "y": 120, "size": 10},
+                    {"type": "cloud", "x": 60, "y": 40},
                     {"type": "cloud", "x": 380, "y": 80},
+                    {"type": "cloud", "x": 680, "y": 50},
+                    {"type": "cloud", "x": 950, "y": 90},
+                    {"type": "cloud", "x": 1150, "y": 30},
                     {"type": "rock", "x": 420, "y": 420, "size": 80},
                 ],
                 "obstacles": [
@@ -39,6 +43,10 @@ PLANETS = {
                 "sky": {"height": 120, "color": (160, 220, 190)},
                 "decor": [
                     {"type": "cloud", "x": 90, "y": 80},
+                    {"type": "cloud", "x": 320, "y": 40},
+                    {"type": "cloud", "x": 600, "y": 60},
+                    {"type": "cloud", "x": 880, "y": 30},
+                    {"type": "cloud", "x": 1120, "y": 70},
                     {"type": "rock", "x": 240, "y": 420, "size": 80},
                     {"type": "rock", "x": 680, "y": 260, "size": 72},
                 ],
@@ -54,6 +62,11 @@ PLANETS = {
                 "sky": {"height": 180, "color": (60, 120, 160)},
                 "decor": [
                     {"type": "star", "x": 120, "y": 60, "size": 9},
+                    {"type": "cloud", "x": 80, "y": 40},
+                    {"type": "cloud", "x": 300, "y": 90},
+                    {"type": "cloud", "x": 560, "y": 30},
+                    {"type": "cloud", "x": 830, "y": 70},
+                    {"type": "cloud", "x": 1080, "y": 50},
                     {"type": "rock", "x": 520, "y": 420, "size": 96},
                 ],
                 "obstacles": [
