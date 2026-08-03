@@ -182,11 +182,7 @@ def request_room_change(new_room, direction):
 
 def _follow_chaser_through_doorway(direction, gap_distance):
     """Positions the dark figure just inside the new room, coming through
-    the same doorway the player used, so it reads as having followed them
-    through rather than freshly spawning. It waits `gap_distance`-scaled
-    seconds before resuming the chase, so a figure that was far behind the
-    player takes noticeably longer to catch up to the doorway than one that
-    was right on their heels."""
+    the same doorway the player used"""
     edge_offset = 20
     if direction == "left":
         # player exits left, so they land near the right edge of the next room
