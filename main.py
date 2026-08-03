@@ -28,7 +28,7 @@ transition_duration = 1.0
 intro_transition_alpha = 0
 intro_font = pygame.font.SysFont(None, 34)
 
-# typewriter effect for the intro text
+# typewriter effect for the WASD/instructions text
 INSTRUCTION_LINES = [
     "You are a space detective travelling across planets to solve problems.",
     "",
@@ -42,6 +42,8 @@ instructions_skip_typing = False
 
 
 def _revealed_instruction_lines():
+    """Returns INSTRUCTION_LINES with characters progressively revealed
+    based on intro_timer, typewriter-style (matching DialogueBox)."""
     if instructions_skip_typing:
         revealed_total = INSTRUCTION_TOTAL_CHARS
     else:
@@ -369,7 +371,14 @@ while running:
 
     player.draw(world_surface)
 
-    vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
+    if planet_manager.current_planet == "nova":
+        player_center = player.pos + pygame.Vector2(
+            player.image.get_width() / 2, player.image.get_height() / 2
+        )
+        vision.apply_vision_circle(screen, world_surface, player_center, WIDTH, HEIGHT,
+                                    radius=140, edge_softness=60)
+    else:
+        vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
 
     dialogue_box.draw(screen)
     courtroom_battle_ui.draw(screen)
