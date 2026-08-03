@@ -1,5 +1,5 @@
 import pygame
-from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR
+from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR, TEXT_SPEED
 import planet_manager
 from player import Player
 from dialogue import DialogueBox
@@ -27,6 +27,40 @@ instructions_duration = 4.0
 transition_duration = 1.0
 intro_transition_alpha = 0
 intro_font = pygame.font.SysFont(None, 34)
+
+# typewriter effect for the intro text
+INSTRUCTION_LINES = [
+    "You are a space detective travelling across planets to solve problems.",
+    "",
+    "Use WASD to move around and E to talk to people.",
+    "",
+    "Press Enter or Space to begin.",
+]
+INSTRUCTION_TOTAL_CHARS = sum(len(line) for line in INSTRUCTION_LINES if line)
+INSTRUCTION_CHARS_PER_SECOND = TEXT_SPEED
+instructions_skip_typing = False
+
+
+def _revealed_instruction_lines():
+    if instructions_skip_typing:
+        revealed_total = INSTRUCTION_TOTAL_CHARS
+    else:
+        revealed_total = min(INSTRUCTION_TOTAL_CHARS, int(intro_timer * INSTRUCTION_CHARS_PER_SECOND))
+
+    lines = []
+    remaining = revealed_total
+    for line in INSTRUCTION_LINES:
+        if line == "":
+            lines.append("")
+        elif remaining <= 0:
+            lines.append("")
+        elif remaining >= len(line):
+            lines.append(line)
+            remaining -= len(line)
+        else:
+            lines.append(line[:remaining])
+            remaining = 0
+    return lines
 
 
 def draw_intro_screen(surface):
@@ -62,16 +96,9 @@ def draw_intro_screen(surface):
 
     if intro_state == "transition_to_playing":
         surface.fill((0, 0, 0))
-        instruction_lines = [
-            "You are a space detective travelling across planets to solve problems.",
-            "",
-            "Use WASD to move around and E to talk to people.",
-            "",
-            "Press Enter or Space to begin.",
-        ]
 
         y = HEIGHT // 2 - 90
-        for line in instruction_lines:
+        for line in INSTRUCTION_LINES:
             if line == "":
                 y += 24
                 continue
@@ -87,13 +114,7 @@ def draw_intro_screen(surface):
         return
 
     surface.fill((0, 0, 0))
-    instruction_lines = [
-        "You are a space detective travelling across planets to solve problems.",
-        "",
-        "Use WASD to move around and E to talk to people.",
-        "",
-        "Press Enter or Space to begin.",
-    ]
+    instruction_lines = _revealed_instruction_lines()
 
     y = HEIGHT // 2 - 90
     for line in instruction_lines:
@@ -198,9 +219,15 @@ while running:
                     intro_timer = 0.0
                     intro_transition_alpha = 0
                 elif intro_state == "instructions":
-                    intro_state = "transition_to_playing"
-                    intro_timer = 0.0
-                    intro_transition_alpha = 0
+                    revealed_total = INSTRUCTION_TOTAL_CHARS if instructions_skip_typing else min(
+                        INSTRUCTION_TOTAL_CHARS, int(intro_timer * INSTRUCTION_CHARS_PER_SECOND))
+                    if revealed_total < INSTRUCTION_TOTAL_CHARS:
+                        instructions_skip_typing = True
+                    else:
+                        intro_state = "transition_to_playing"
+                        intro_timer = 0.0
+                        intro_transition_alpha = 0
+                        instructions_skip_typing = False
                 else:
                     intro_state = "playing"
             continue
@@ -252,12 +279,14 @@ while running:
                 intro_state = "instructions"
                 intro_timer = 0.0
                 intro_transition_alpha = 255
+                instructions_skip_typing = False
         elif intro_state == "instructions":
             intro_timer += dt
             if intro_timer >= instructions_duration:
                 intro_state = "transition_to_playing"
                 intro_timer = 0.0
                 intro_transition_alpha = 0
+                instructions_skip_typing = False
         else:
             intro_timer += dt
             intro_transition_alpha = int(min(255, (intro_timer / transition_duration) * 255))
