@@ -40,12 +40,7 @@ class Player:
             width = abs(new_x - self.pos.x) + player_size[0]
             swept = pygame.Rect(left, self.pos.y, width, player_size[1])
             blocked = False
-            if npcs:
-                for npc in npcs:
-                    if hasattr(npc, "rect") and swept.colliderect(npc.rect):
-                        blocked = True
-                        break
-            if obstacles and not blocked:
+            if obstacles:
                 for obstacle in obstacles:
                     if swept.colliderect(obstacle):
                         blocked = True
@@ -64,12 +59,7 @@ class Player:
             height = abs(new_y - self.pos.y) + player_size[1]
             swept = pygame.Rect(self.pos.x, top, player_size[0], height)
             blocked = False
-            if npcs:
-                for npc in npcs:
-                    if hasattr(npc, "rect") and swept.colliderect(npc.rect):
-                        blocked = True
-                        break
-            if obstacles and not blocked:
+            if obstacles:
                 for obstacle in obstacles:
                     if swept.colliderect(obstacle):
                         blocked = True
@@ -90,7 +80,7 @@ class Player:
             self._try_change_room(current_room, "left", screen_w, screen_h, on_room_change, room_connections)
         if self.pos.x + player_size[0] > screen_w:
             self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change, room_connections)
-
+            
     # for letting the player go through transparent parts of the decor.
     def _hits_mask_obstacles(self, rect, mask_obstacles):
         if not mask_obstacles:

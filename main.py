@@ -290,6 +290,11 @@ while running:
                 if result is not None:
                     mask_obstacles.append(result)
 
+        for npc in room.get("npcs", []):
+            result = npc.get_collision_mask()
+            if result is not None:
+                mask_obstacles.append(result)
+                
         player.handle_movement(
             keys,
             dt,

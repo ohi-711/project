@@ -37,6 +37,8 @@ class NPC:
         self.image_size = image_size
         self.image = None
         self.rect = pygame.Rect(x, y, *size)
+        self._collision_mask = None
+        self._collision_mask_key = None
 
         # --- clue / boss-gate behavior ---
         self.clue_id = clue_id                      # clue this NPC gives out, if any
@@ -64,6 +66,29 @@ class NPC:
                 except Exception:
                     self.image = None
 
+    def get_collision_mask(self):
+        # for letting players walk through the transparent parts of the NPC's image.
+        self._ensure_image()
+
+        if self.image is None:
+            # No image loaded (or failed) — fall back to a fully solid mask
+            key = ("solid", self.rect.size)
+            if self._collision_mask_key != key:
+                self._collision_mask = pygame.Mask(self.rect.size, fill=True)
+                self._collision_mask_key = key
+            return self._collision_mask, self.rect
+
+        frame = self.image.blit_ready() if hasattr(self.image, "blit_ready") else self.image
+        if frame is None:
+            return None
+
+        key = ("image", frame.get_size(), self.rect.topleft)
+        if self._collision_mask_key != key:
+            self._collision_mask = pygame.mask.from_surface(frame)
+            self._collision_mask_key = key
+
+        return self._collision_mask, self.rect
+    
     def is_near(self, player_pos):
         return self.pos.distance_to(player_pos) <= INTERACT_RANGE
 
