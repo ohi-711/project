@@ -8,6 +8,7 @@ import courtroom_battle
 from transport import start_transport_segment
 import background
 import vision
+import chaser
 from resource_path import resource_path
 
 pygame.init()
@@ -141,6 +142,17 @@ player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
 courtroom_battle_ui = courtroom_battle.CourtroomBattle()
 
+# dark figure chaser
+dark_figure = chaser.DarkFigure()
+dark_figure_room = None
+
+# Where the figure appears when the player steps into each Nova room.
+NOVA_CHASER_SPAWNS = {
+    "nova1": (1060, 520),
+    "nova2": (980, 500),
+    "nova3": (180, 520),
+}
+
 # boss_keys listed here fight a courtroom trial instead of the boss_battle
 # placeholder. The trial data lives in courtroom_battle.TRIALS under
 # f"{boss_key}_trial".
@@ -168,10 +180,44 @@ def request_room_change(new_room, direction):
     })
 
 
+def _follow_chaser_through_doorway(direction, gap_distance):
+    """Positions the dark figure just inside the new room, coming through
+    the same doorway the player used, so it reads as having followed them
+    through rather than freshly spawning. It waits `gap_distance`-scaled
+    seconds before resuming the chase, so a figure that was far behind the
+    player takes noticeably longer to catch up to the doorway than one that
+    was right on their heels."""
+    edge_offset = 20
+    if direction == "left":
+        # player exits left, so they land near the right edge of the next room
+        x, y = WIDTH - edge_offset, player.pos.y
+    elif direction == "right":
+        x, y = edge_offset, player.pos.y
+    elif direction == "up":
+        x, y = player.pos.x, HEIGHT - edge_offset
+    elif direction == "down":
+        x, y = player.pos.x, edge_offset
+    else:
+        x, y = player.pos.x, player.pos.y
+
+    delay = min(max(gap_distance / 200, 0.3), 2.5)
+    dark_figure.spawn_with_delay(x, y, delay)
+
+
 def _complete_room_change():
+    global dark_figure_room
+
+    chase_gap = None
+    if planet_manager.current_planet == "nova" and dark_figure.active:
+        chase_gap = dark_figure.pos.distance_to(player.pos)
+
     planet_manager.set_current_room(transition_state["target_room"])
     player.snap_to_edge(transition_state["direction"], WIDTH, HEIGHT)
     transition_state["phase"] = "in"
+
+    if chase_gap is not None:
+        _follow_chaser_through_doorway(transition_state["direction"], chase_gap)
+        dark_figure_room = planet_manager.current_room
 
 
 def start_boss_battle():
@@ -205,6 +251,28 @@ def _guardian_trial_failed():
     )
 
 
+# captured by figure
+capture_state = {"active": False, "phase": None, "alpha": 0}
+CAPTURE_FADE_SPEED = 500
+
+
+def _trigger_capture():
+    if capture_state["active"]:
+        return
+    capture_state.update({"active": True, "phase": "out", "alpha": 0})
+
+
+def _complete_capture():
+    global dark_figure_room
+    nova_start_room = planet_manager.PLANETS["nova"]["start_room"]
+    planet_manager.set_current_room(nova_start_room)
+    player.pos = pygame.Vector2(WIDTH / 2, HEIGHT / 2)
+    player.facing = "front"
+    dark_figure.deactivate()
+    dark_figure_room = None
+    capture_state["phase"] = "in"
+
+
 running = True
 dt = 0
 
@@ -232,6 +300,9 @@ while running:
                         instructions_skip_typing = False
                 else:
                     intro_state = "playing"
+            continue
+
+        if capture_state["active"]:
             continue
 
         if courtroom_battle_ui.active:
@@ -305,7 +376,21 @@ while running:
     keys = pygame.key.get_pressed()
 
     room = planet_manager.get_current_room_data()
-    if not dialogue_box.active and not courtroom_battle_ui.active and not transition_state["active"]:
+
+    if planet_manager.current_planet == "nova":
+        if not dark_figure.active or dark_figure_room != planet_manager.current_room:
+            spawn_x, spawn_y = NOVA_CHASER_SPAWNS.get(
+                planet_manager.current_room, (WIDTH - 120, HEIGHT - 150)
+            )
+            dark_figure.spawn(spawn_x, spawn_y)
+            dark_figure_room = planet_manager.current_room
+    else:
+        if dark_figure.active:
+            dark_figure.deactivate()
+        dark_figure_room = None
+
+    if (not dialogue_box.active and not courtroom_battle_ui.active
+            and not transition_state["active"] and not capture_state["active"]):
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
         if sky:
@@ -339,6 +424,14 @@ while running:
             mask_obstacles,
         )
 
+        if planet_manager.current_planet == "nova":
+            player_center = player.pos + pygame.Vector2(
+                player.image.get_width() / 2, player.image.get_height() / 2
+            )
+            dark_figure.update(dt, player_center)
+            if dark_figure.has_captured(player_center):
+                _trigger_capture()
+
     FADE_SPEED = 900
     if transition_state["active"]:
         if transition_state["phase"] == "out":
@@ -355,6 +448,19 @@ while running:
                 transition_state["target_room"] = None
                 transition_state["direction"] = None
 
+    if capture_state["active"]:
+        if capture_state["phase"] == "out":
+            capture_state["alpha"] += CAPTURE_FADE_SPEED * dt
+            if capture_state["alpha"] >= 255:
+                capture_state["alpha"] = 255
+                _complete_capture()
+        else:
+            capture_state["alpha"] -= CAPTURE_FADE_SPEED * dt
+            if capture_state["alpha"] <= 0:
+                capture_state["alpha"] = 0
+                capture_state["active"] = False
+                capture_state["phase"] = None
+
     # --- draw ---, 
     room = planet_manager.get_current_room_data()
     world_surface.fill(room["color"])
@@ -368,6 +474,8 @@ while running:
 
     for npc in room["npcs"]:
         npc.draw(world_surface)
+
+    dark_figure.draw(world_surface)
 
     player.draw(world_surface)
 
@@ -386,6 +494,12 @@ while running:
     if transition_state["active"]:
         overlay = pygame.Surface((WIDTH, HEIGHT))
         overlay.set_alpha(int(transition_state["alpha"]))
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+
+    if capture_state["active"]:
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(int(capture_state["alpha"]))
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
 

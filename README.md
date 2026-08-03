@@ -18,6 +18,7 @@ This game was made using just Python and Python libraries. Specific libraries us
 
 - Getting GIFs to actually render as moving images instead of a single static frame was a problem that I ran into. This is because `pygame` doesn't support animated GIFs on its own, so frames have to be decoded manually with `Pillow` and played back through `gif-pygame`.
 - Ran into some issues with making an .exe but they were resolved pretty fast as well.
+- It was also somewhat difficult adding the chasing sequence on the second planet. This is because when the player switches rooms, there has to be a delay depending on how far the figure was from the player.
 
 There are also still issues with the game/things I need to add:
 - Collision with NPCs and inanimate objects looks weird because the obstacle size set is the size of the file. However, almost all of these assets are not cropped very well, and there is a lot of blank space.

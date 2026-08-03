@@ -25,6 +25,7 @@ PLANETS = {
                     {"type": "cloud", "x": 950, "y": 90},
                     {"type": "cloud", "x": 1150, "y": 30},
                     {"type": "rock", "x": 420, "y": 420, "size": 80},
+                    {"type": "tree1", "x": 1000, "y": 300, "size": None},
                 ],
                 "obstacles": [
                     pygame.Rect(420, 420, 80, 80),
