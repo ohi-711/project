@@ -192,6 +192,7 @@ rooms = {
         ],
         "npcs": [
             NPC(600, 350, "Guardian", (180, 40, 40), size=(48, 64),
+                image_path="assets/sprites/angrybunny.png", image_size=(None),
                 lines=["You lack the relics needed to pass.",
                        "Return when you've gathered them all."],
                 required_clues=["map_fragment", "rusted_key", "ancient_coin"],
