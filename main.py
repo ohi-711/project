@@ -479,8 +479,8 @@ while running:
         player_center = player.pos + pygame.Vector2(
             player.image.get_width() / 2, player.image.get_height() / 2
         )
-        vision.apply_vision_circle(screen, world_surface, player_center, WIDTH, HEIGHT,
-                                    radius=140, edge_softness=60)
+        vision.apply_vision_zoom_with_darkness(screen, world_surface, player_center, WIDTH, HEIGHT,
+                                                coverage=0.7, radius=140, edge_softness=60)
     else:
         vision.apply_vision_zoom(screen, world_surface, player.pos, WIDTH, HEIGHT, coverage=0.7)
 
