@@ -45,9 +45,13 @@ class Player:
                     if swept.colliderect(obstacle):
                         blocked = True
                         break
-            if not blocked:
+            if not blocked and mask_obstacles:
+                current_rect = pygame.Rect(self.pos.x, self.pos.y, *player_size)
                 test_rect = pygame.Rect(new_x, self.pos.y, *player_size)
-                if self._hits_mask_obstacles(test_rect, mask_obstacles):
+                current_overlap = self._mask_overlap_area(current_rect, mask_obstacles)
+                new_overlap = self._mask_overlap_area(test_rect, mask_obstacles)
+                # to prevent player from getting stuck
+                if new_overlap > current_overlap:
                     blocked = True
             if not blocked:
                 self.pos.x = new_x
@@ -64,9 +68,12 @@ class Player:
                     if swept.colliderect(obstacle):
                         blocked = True
                         break
-            if not blocked:
+            if not blocked and mask_obstacles:
+                current_rect = pygame.Rect(self.pos.x, self.pos.y, *player_size)
                 test_rect = pygame.Rect(self.pos.x, new_y, *player_size)
-                if self._hits_mask_obstacles(test_rect, mask_obstacles):
+                current_overlap = self._mask_overlap_area(current_rect, mask_obstacles)
+                new_overlap = self._mask_overlap_area(test_rect, mask_obstacles)
+                if new_overlap > current_overlap:
                     blocked = True
             if not blocked:
                 self.pos.y = new_y
@@ -82,17 +89,23 @@ class Player:
             self._try_change_room(current_room, "right", screen_w, screen_h, on_room_change, room_connections)
             
     # for letting the player go through transparent parts of the decor.
-    def _hits_mask_obstacles(self, rect, mask_obstacles):
+    def _mask_overlap_area(self, rect, mask_obstacles):
+        """Total number of overlapping pixels between the player's hitbox at
+        `rect` and every mask obstacle it's near. Used (instead of a plain
+        yes/no collision check) so movement can be blocked only when it would
+        make an existing overlap *worse* - this stops the player from getting
+        permanently wedged when standing where two pieces of decor (e.g.
+        overlapping trees) already touch their hitbox on every side."""
         if not mask_obstacles:
-            return False
+            return 0
         player_mask = pygame.Mask(rect.size, fill=True)
+        total = 0
         for mask, obs_rect in mask_obstacles:
             if not rect.colliderect(obs_rect):
                 continue
             offset = (obs_rect.x - rect.x, obs_rect.y - rect.y)
-            if player_mask.overlap(mask, offset):
-                return True
-        return False
+            total += player_mask.overlap_area(mask, offset)
+        return total
 
     def _try_change_room(self, current_room, direction, screen_w, screen_h, on_room_change, room_connections):
         next_room = room_connections[current_room][direction]
