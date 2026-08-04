@@ -170,11 +170,6 @@ transition_state = {
 
 
 def _room_play_rect(room_data):
-    """The rectangle (in world/screen coordinates) the player can actually
-    walk around in for a given room. For most rooms this is the full
-    1280x720 canvas; for "native_size" rooms (interiors drawn at their own
-    background image's resolution, centered, with black bars around them)
-    it's just the area the image covers."""
     if room_data.get("native_size"):
         bg_path = room_data.get("background_image")
         rect = background.get_centered_rect(bg_path, WIDTH, HEIGHT) if bg_path else None
@@ -184,12 +179,6 @@ def _room_play_rect(room_data):
 
 
 def _resolve_room_pos(room_data, pos):
-    """Turns a position into absolute (x, y) world coordinates for the
-    given room. Plain (x, y) pixel tuples pass through unchanged; a
-    fraction dict like {"fraction": (fx, fy)} is resolved against that
-    room's actual play area (fx/fy each 0-1), so doors/spawn points stay
-    correctly placed even when a native_size room's image dimensions
-    aren't known ahead of time."""
     if isinstance(pos, dict) and "fraction" in pos:
         play_rect = _room_play_rect(room_data)
         fx, fy = pos["fraction"]
@@ -413,22 +402,25 @@ while running:
                 intro_transition_alpha = 255
                 instructions_skip_typing = False
         elif intro_state == "instructions":
+            # Keep the timer running (it drives the typewriter reveal), but
+            # don't auto-advance - this screen should only move on when the
+            # player presses Enter/Space.
             intro_timer += dt
-            if intro_timer >= instructions_duration:
-                intro_state = "transition_to_playing"
-                intro_timer = 0.0
-                intro_transition_alpha = 0
-                instructions_skip_typing = False
         else:
             intro_timer += dt
             intro_transition_alpha = int(min(255, (intro_timer / transition_duration) * 255))
             if intro_timer >= transition_duration:
                 intro_state = "playing"
 
-        draw_intro_screen(screen)
-        pygame.display.flip()
-        dt = clock.tick(FPS) / 1000
-        continue
+        if intro_state != "playing":
+            draw_intro_screen(screen)
+            pygame.display.flip()
+            dt = clock.tick(FPS) / 1000
+            continue
+        # else: intro_state just flipped to "playing" on this same frame -
+        # fall through to normal gameplay rendering below instead of drawing
+        # a stale intro_screen frame (which would flash the instruction
+        # text with no fade overlay for one frame).
 
     dialogue_box.update(dt)
 
