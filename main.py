@@ -43,7 +43,8 @@ instructions_skip_typing = False
 
 
 def _revealed_instruction_lines():
-    # make intro text typewriter style
+    """Returns INSTRUCTION_LINES with characters progressively revealed
+    based on intro_timer, typewriter-style (matching DialogueBox)."""
     if instructions_skip_typing:
         revealed_total = INSTRUCTION_TOTAL_CHARS
     else:
@@ -163,8 +164,8 @@ transition_state = {
     "alpha": 0,
     "target_room": None,
     "direction": None,
-    "mode": "room", # "room" (walked off an edge) or "building" (walked through a door)
-    "spawn_pos": None, # used only when mode == "building"
+    "mode": "room",       # "room" (walked off an edge) or "building" (walked through a door)
+    "spawn_pos": None,    # used only when mode == "building"
 }
 
 
@@ -463,6 +464,15 @@ while running:
                 pygame.Rect(play_rect.right, play_rect.top,
                              WIDTH - play_rect.right, play_rect.height),               # right wall
             ])
+            # prevent player from walking up wall
+            for interior_obs in room.get("interior_obstacles", []):
+                fx, fy, fw, fh = interior_obs["fraction_rect"]
+                obstacles.append(pygame.Rect(
+                    play_rect.x + fx * play_rect.width,
+                    play_rect.y + fy * play_rect.height,
+                    fw * play_rect.width,
+                    fh * play_rect.height,
+                ))
 
         # Auto-add mask-based obstacles for trees, rocks, and solid decor
         decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding", "bunnybuilding"}

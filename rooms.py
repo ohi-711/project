@@ -264,7 +264,7 @@ rooms = {
                 "name": "Cat Building Door",
                 "door_pos": (236, 217),
                 "target_room": "catbuilding_inside",
-                "spawn_pos": {"fraction": (0.5, 0.75)},
+                "spawn_pos": {"fraction": (0.5, 0.28)},
             },
         ],
     },
@@ -273,6 +273,9 @@ rooms = {
         "name": "Cat Building - Interior",
         "background_image": "assets/backgrounds/catbuildinginside.png",
         "native_size": True,
+        "interior_obstacles": [
+            {"fraction_rect": (0.0, 0.0, 1.0, 123 / 500)},
+        ],
         "decor": [],
         "npcs": [],
         "buildings": [
