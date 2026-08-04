@@ -14,7 +14,7 @@ from resource_path import resource_path
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 world_surface = pygame.Surface((WIDTH, HEIGHT))
-pygame.display.set_caption("Room Transition Demo")
+pygame.display.set_caption("Space Detective Game")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 36)
 background.load_decor_sprites()
@@ -43,8 +43,7 @@ instructions_skip_typing = False
 
 
 def _revealed_instruction_lines():
-    """Returns INSTRUCTION_LINES with characters progressively revealed
-    based on intro_timer, typewriter-style (matching DialogueBox)."""
+    """Typewriter effect for revealing instruction lines."""
     if instructions_skip_typing:
         revealed_total = INSTRUCTION_TOTAL_CHARS
     else:

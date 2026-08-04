@@ -264,7 +264,7 @@ rooms = {
                 "name": "Cat Building Door",
                 "door_pos": (236, 217),
                 "target_room": "catbuilding_inside",
-                "spawn_pos": {"fraction": (0.5, 0.28)},
+                "spawn_pos": {"fraction": (0.5, 0.9)},
             },
         ],
     },
