@@ -1,5 +1,5 @@
 import pygame
-from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR, TEXT_SPEED
+from settings import WIDTH, HEIGHT, FPS, DECOR_COLOR, TEXT_SPEED, INTERACT_RANGE
 import planet_manager
 from player import Player
 from dialogue import DialogueBox
@@ -43,8 +43,7 @@ instructions_skip_typing = False
 
 
 def _revealed_instruction_lines():
-    """Returns INSTRUCTION_LINES with characters progressively revealed
-    based on intro_timer, typewriter-style (matching DialogueBox)."""
+    # make intro text typewriter style
     if instructions_skip_typing:
         revealed_total = INSTRUCTION_TOTAL_CHARS
     else:
@@ -164,7 +163,37 @@ transition_state = {
     "alpha": 0,
     "target_room": None,
     "direction": None,
+    "mode": "room", # "room" (walked off an edge) or "building" (walked through a door)
+    "spawn_pos": None, # used only when mode == "building"
 }
+
+
+def _room_play_rect(room_data):
+    """The rectangle (in world/screen coordinates) the player can actually
+    walk around in for a given room. For most rooms this is the full
+    1280x720 canvas; for "native_size" rooms (interiors drawn at their own
+    background image's resolution, centered, with black bars around them)
+    it's just the area the image covers."""
+    if room_data.get("native_size"):
+        bg_path = room_data.get("background_image")
+        rect = background.get_centered_rect(bg_path, WIDTH, HEIGHT) if bg_path else None
+        if rect is not None:
+            return rect
+    return pygame.Rect(0, 0, WIDTH, HEIGHT)
+
+
+def _resolve_room_pos(room_data, pos):
+    """Turns a position into absolute (x, y) world coordinates for the
+    given room. Plain (x, y) pixel tuples pass through unchanged; a
+    fraction dict like {"fraction": (fx, fy)} is resolved against that
+    room's actual play area (fx/fy each 0-1), so doors/spawn points stay
+    correctly placed even when a native_size room's image dimensions
+    aren't known ahead of time."""
+    if isinstance(pos, dict) and "fraction" in pos:
+        play_rect = _room_play_rect(room_data)
+        fx, fy = pos["fraction"]
+        return (play_rect.x + fx * play_rect.width, play_rect.y + fy * play_rect.height)
+    return pos
 
 
 def request_room_change(new_room, direction):
@@ -177,6 +206,26 @@ def request_room_change(new_room, direction):
         "alpha": 0,
         "target_room": new_room,
         "direction": direction,
+        "mode": "room",
+        "spawn_pos": None,
+    })
+
+
+def request_building_transition(building):
+    global transition_state
+    if transition_state["active"]:
+        return
+    target_room_key = building["target_room"]
+    target_room_data = planet_manager.PLANETS[planet_manager.current_planet]["rooms"][target_room_key]
+    spawn_pos = _resolve_room_pos(target_room_data, building["spawn_pos"])
+    transition_state.update({
+        "active": True,
+        "phase": "out",
+        "alpha": 0,
+        "target_room": target_room_key,
+        "direction": None,
+        "mode": "building",
+        "spawn_pos": spawn_pos,
     })
 
 
@@ -208,7 +257,10 @@ def _complete_room_change():
         chase_gap = dark_figure.pos.distance_to(player.pos)
 
     planet_manager.set_current_room(transition_state["target_room"])
-    player.snap_to_edge(transition_state["direction"], WIDTH, HEIGHT)
+    if transition_state["mode"] == "building":
+        player.pos = pygame.Vector2(*transition_state["spawn_pos"])
+    else:
+        player.snap_to_edge(transition_state["direction"], WIDTH, HEIGHT)
     transition_state["phase"] = "in"
 
     if chase_gap is not None:
@@ -311,6 +363,7 @@ while running:
             else:
                 # look for a nearby NPC to start talking to
                 current_room_data = planet_manager.get_current_room_data()
+                interacted = False
                 for npc in current_room_data["npcs"]:
                     if npc.is_near(player.pos):
                         lines, triggers_battle = npc.get_dialogue()
@@ -329,7 +382,16 @@ while running:
                             npc.name, lines,
                             on_complete=_start_battle if triggers_battle else None,
                         )
+                        interacted = True
                         break
+
+                # if no NPC was close enough, check for a nearby building door
+                if not interacted and not transition_state["active"]:
+                    for building in current_room_data.get("buildings", []):
+                        door_x, door_y = _resolve_room_pos(current_room_data, building["door_pos"])
+                        if pygame.Vector2(door_x, door_y).distance_to(player.pos) <= INTERACT_RANGE:
+                            request_building_transition(building)
+                            break
 
     if not running:
         break
@@ -392,6 +454,16 @@ while running:
         if sky:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
 
+        if room.get("native_size"):
+            play_rect = _room_play_rect(room)
+            obstacles.extend([
+                pygame.Rect(0, 0, WIDTH, play_rect.top),                              # top wall
+                pygame.Rect(0, play_rect.bottom, WIDTH, HEIGHT - play_rect.bottom),    # bottom wall
+                pygame.Rect(0, play_rect.top, play_rect.left, play_rect.height),       # left wall
+                pygame.Rect(play_rect.right, play_rect.top,
+                             WIDTH - play_rect.right, play_rect.height),               # right wall
+            ])
+
         # Auto-add mask-based obstacles for trees, rocks, and solid decor
         decor_obstacle_types = {"tree1", "tree2", "tree3", "rock", "catbuilding", "bunnybuilding"}
         mask_obstacles = []
@@ -443,6 +515,8 @@ while running:
                 transition_state["phase"] = None
                 transition_state["target_room"] = None
                 transition_state["direction"] = None
+                transition_state["mode"] = "room"
+                transition_state["spawn_pos"] = None
 
     if capture_state["active"]:
         if capture_state["phase"] == "out":

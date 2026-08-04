@@ -124,6 +124,31 @@ def draw(screen, item):
         screen.blit(frame, pos)
 
 
+def get_background_native_size(path):
+    """Returns the native (width, height) of a background image, loading
+    and caching it if needed. Used by rooms that draw their background at
+    its own resolution instead of stretching it to fill the screen."""
+    background_surface = background_surfaces.get(path)
+    if background_surface is None:
+        background_surface = _load_background(path)
+        background_surfaces[path] = background_surface
+
+    if background_surface is None:
+        return None
+    return background_surface.get_size()
+
+
+def get_centered_rect(path, screen_w, screen_h):
+    """The rect a native-size background occupies once centered on a
+    screen_w x screen_h canvas. Returns None if the image can't be loaded."""
+    size = get_background_native_size(path)
+    if size is None:
+        return None
+    rect = pygame.Rect(0, 0, *size)
+    rect.center = (screen_w // 2, screen_h // 2)
+    return rect
+
+
 def draw_room_background(screen, room):
     background_path = room.get("background_image")
     if not background_path:
@@ -136,6 +161,13 @@ def draw_room_background(screen, room):
 
     if background_surface is None:
         return False
+
+    if room.get("native_size"):
+        # Draw the room at its own resolution, centered on screen, and fill everything the image doesn't reach with black.
+        screen.fill((0, 0, 0))
+        rect = background_surface.get_rect(center=screen.get_rect().center)
+        screen.blit(background_surface, rect.topleft)
+        return True
 
     sky = room.get("sky")
     if sky:

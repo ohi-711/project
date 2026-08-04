@@ -142,6 +142,14 @@ rooms = {
                 clue_id="ancient_coin",
                 repeat_lines=["Come back anytime."]),
         ],
+        "buildings": [
+            {
+                "name": "Bunny Building Door",
+                "door_pos": (490, 420),
+                "target_room": "bunnybuilding_inside",
+                "spawn_pos": {"fraction": (0.5, 0.75)},
+            },
+        ],
     },
     "room3": {
         "color": (70, 110, 80),
@@ -251,6 +259,46 @@ rooms = {
             {"type": "tree2", "x": 1119, "y": 67},
         ],
         "npcs": [],
+        "buildings": [
+            {
+                "name": "Cat Building Door",
+                "door_pos": (236, 217),
+                "target_room": "catbuilding_inside",
+                "spawn_pos": {"fraction": (0.5, 0.75)},
+            },
+        ],
+    },
+    "catbuilding_inside": {
+        "color": (70, 45, 40),
+        "name": "Cat Building - Interior",
+        "background_image": "assets/backgrounds/catbuildinginside.png",
+        "native_size": True,
+        "decor": [],
+        "npcs": [],
+        "buildings": [
+            {
+                "name": "Cat Building Exit",
+                "door_pos": {"fraction": (0.5, 0.85)},
+                "target_room": "room4",
+                "spawn_pos": (236, 230),
+            },
+        ],
+    },
+    "bunnybuilding_inside": {
+        "color": (55, 35, 60),
+        "name": "Bunny Building - Interior",
+        "background_image": "assets/backgrounds/bunnybuildinginside.png",
+        "native_size": True,
+        "decor": [],
+        "npcs": [],
+        "buildings": [
+            {
+                "name": "Bunny Building Exit",
+                "door_pos": {"fraction": (0.5, 0.85)},
+                "target_room": "room2",
+                "spawn_pos": (490, 435),
+            },
+        ],
     },
 }
 
@@ -259,4 +307,6 @@ room_connections = {
     "room2": {"left": "room1", "right": None, "up": None, "down": "room3"},
     "room3": {"left": "room4", "right": None, "up": "room2", "down": None},
     "room4": {"left": None, "right": "room3", "up": "room1", "down": None},
+    "catbuilding_inside": {"left": None, "right": None, "up": None, "down": None},
+    "bunnybuilding_inside": {"left": None, "right": None, "up": None, "down": None},
 }
