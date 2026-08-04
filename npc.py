@@ -66,6 +66,12 @@ class NPC:
                 except Exception:
                     self.image = None
 
+    def get_portrait(self):
+        """Returns this NPC's current sprite (Surface or gif_pygame anim),
+        loading it first if needed, for use as dialogue_box's portrait."""
+        self._ensure_image()
+        return self.image
+
     def get_collision_mask(self):
         # for letting players walk through the transparent parts of the NPC's image.
         self._ensure_image()

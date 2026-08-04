@@ -370,6 +370,7 @@ while running:
                         dialogue_box.start(
                             npc.name, lines,
                             on_complete=_start_battle if triggers_battle else None,
+                            portrait=npc.get_portrait(),
                         )
                         interacted = True
                         break

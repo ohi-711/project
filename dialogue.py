@@ -14,8 +14,19 @@ class DialogueBox:
 
         # box geometry: bottom section of the screen
         self.box_height = 180
-        self.box_rect = pygame.Rect(40, HEIGHT - self.box_height - 30,
-                                     WIDTH - 80, self.box_height)
+
+        # portrait box sits to the left of the dialogue box, same height as
+        # the dialogue box (square). Whoever is currently speaking (an NPC
+        # or the player) can have their sprite shown here - see `portrait`
+        # in start().
+        self.portrait = None
+        portrait_gap = 15
+        self.portrait_rect = pygame.Rect(40, HEIGHT - self.box_height - 30,
+                                          self.box_height, self.box_height)
+        self.box_rect = pygame.Rect(self.portrait_rect.right + portrait_gap,
+                                     HEIGHT - self.box_height - 30,
+                                     WIDTH - 80 - self.box_height - portrait_gap,
+                                     self.box_height)
 
         # for typewriter effect
         self.chars_per_second = chars_per_second
@@ -25,12 +36,18 @@ class DialogueBox:
         self.char_timer = 0.0
         self.line_complete = False
 
-    def start(self, speaker, lines, on_complete=None):
+    def start(self, speaker, lines, on_complete=None, portrait=None):
+        """portrait is optional and can be a pygame.Surface, a gif_pygame
+        animation (anything exposing blit_ready()/render()), or None. Pass
+        an NPC's get_portrait() when the NPC is speaking, or the player's
+        `.image` when the player is speaking, to have their sprite shown
+        in the box next to the dialogue box."""
         self.speaker = speaker
         self.lines = lines
         self.line_index = 0
         self.active = True
         self.on_complete = on_complete
+        self.portrait = portrait
         self._prepare_current_line()
 
     def update(self, dt):
@@ -86,6 +103,30 @@ class DialogueBox:
                 remaining = 0
         return visible
 
+    def _draw_portrait(self, screen):
+        # draw box with sprite next to dialogue box
+        pygame.draw.rect(screen, DIALOGUE_BG, self.portrait_rect, border_radius=10)
+        pygame.draw.rect(screen, DIALOGUE_BORDER, self.portrait_rect, width=2, border_radius=10)
+
+        if self.portrait is None:
+            return
+
+        frame = self.portrait.blit_ready() if hasattr(self.portrait, "blit_ready") else self.portrait
+        if frame is None or not hasattr(frame, "get_size"):
+            return
+
+        frame_w, frame_h = frame.get_size()
+        if frame_w <= 0 or frame_h <= 0:
+            return
+
+        padding = 10
+        inner_rect = self.portrait_rect.inflate(-padding * 2, -padding * 2)
+        scale = min(inner_rect.width / frame_w, inner_rect.height / frame_h)
+        new_size = (max(1, int(frame_w * scale)), max(1, int(frame_h * scale)))
+        scaled = pygame.transform.smoothscale(frame, new_size)
+        rect = scaled.get_rect(center=inner_rect.center)
+        screen.blit(scaled, rect)
+
     def _wrap_text(self, text, max_width):
         words = text.split(" ")
         lines, current = [], ""
@@ -103,6 +144,8 @@ class DialogueBox:
     def draw(self, screen):
         if not self.active:
             return
+
+        self._draw_portrait(screen)
 
         pygame.draw.rect(screen, DIALOGUE_BG, self.box_rect, border_radius=10)
         pygame.draw.rect(screen, DIALOGUE_BORDER, self.box_rect, width=2, border_radius=10)
