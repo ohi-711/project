@@ -5,11 +5,12 @@ import save_system
 
 class PauseMenu:
 
-    OPTIONS = ["Resume", "Save Game", "Exit Game"]
+    OPTIONS = ["Resume", "Save Game", "Exit to Main Menu", "Exit Game"]
 
     def __init__(self):
         self.active = False
         self.should_quit = False
+        self.should_return_to_menu = False
         self.cursor = 0
         self.state = "main"  # "main" | "save_slots"
 
@@ -23,7 +24,7 @@ class PauseMenu:
         self.hint_font = pygame.font.SysFont(None, 22)
         self.slot_font = pygame.font.SysFont(None, 30)
 
-        box_w, box_h = 380, 230
+        box_w, box_h = 380, 300
         self.box_rect = pygame.Rect(0, 0, box_w, box_h)
         self.box_rect.center = (WIDTH // 2, HEIGHT // 2)
 
@@ -40,6 +41,7 @@ class PauseMenu:
         self.cursor = 0
         self.state = "main"
         self.status_message = ""
+        self.should_return_to_menu = False
 
     def close(self):
         self.active = False
@@ -163,5 +165,7 @@ class PauseMenu:
             self.state = "save_slots"
             self.save_cursor = 0
             self.status_message = ""
+        elif choice == "Exit to Main Menu":
+            self.should_return_to_menu = True
         elif choice == "Exit Game":
             self.should_quit = True

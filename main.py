@@ -180,7 +180,7 @@ TRIAL_BOSS_KEYS = {"guardian"}
 
 
 def _collect_save_data():
-    """Collects everything needed to resume the game later."""
+    """Collect everything needed to resume the game later."""
     return {
         "planet": planet_manager.current_planet,
         "room": planet_manager.current_room,
@@ -492,6 +492,20 @@ while running:
 
     if not running:
         break
+
+    if pause_menu_ui.should_return_to_menu:
+        pause_menu_ui.should_return_to_menu = False
+        pause_menu_ui.close()
+
+        dialogue_box.active = False
+        courtroom_battle_ui.active = False
+        dark_figure.deactivate()
+        dark_figure_room = None
+        transition_state["active"] = False
+        capture_state["active"] = False
+
+        intro_state = "menu"
+        main_menu.reset()
 
     if intro_state != "playing":
         if intro_state == "thumbnail":
