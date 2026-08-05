@@ -12,6 +12,8 @@ import chaser
 import pause_menu
 from resource_path import resource_path
 import menu
+import save_system
+from game_state import game_state
 
 pygame.init()
 try:
@@ -175,6 +177,45 @@ NOVA_CHASER_SPAWNS = {
 # placeholder. The trial data lives in courtroom_battle.TRIALS under
 # f"{boss_key}_trial".
 TRIAL_BOSS_KEYS = {"guardian"}
+
+
+def _collect_save_data():
+    """Collects everything needed to resume the game later."""
+    return {
+        "planet": planet_manager.current_planet,
+        "room": planet_manager.current_room,
+        "player_x": player.pos.x,
+        "player_y": player.pos.y,
+        "player_facing": player.facing,
+        "clues": sorted(game_state.clues),
+        "transports": sorted(game_state.transports),
+    }
+
+
+def _apply_save_data(data):
+    """Restores game state from a dict produced by _collect_save_data()."""
+    global dark_figure_room
+
+    planet = data.get("planet", "home")
+    room = data.get("room")
+    try:
+        planet_manager.switch_planet(planet, start_room=room)
+    except ValueError:
+        planet_manager.switch_planet("home")
+
+    player.pos = pygame.Vector2(
+        data.get("player_x", WIDTH / 2), data.get("player_y", HEIGHT / 2)
+    )
+    player.facing = data.get("player_facing", "front")
+
+    game_state.clues = set(data.get("clues", []))
+    game_state.transports = set(data.get("transports", []))
+
+    dark_figure.deactivate()
+    dark_figure_room = None
+
+
+pause_menu_ui.set_save_data_provider(_collect_save_data)
 
 transition_state = {
     "active": False,
@@ -370,6 +411,12 @@ while running:
                 elif result == "exit":
                     running = False
                     break
+                elif isinstance(result, str) and result.startswith("load:"):
+                    slot = int(result.split(":", 1)[1])
+                    save_data = save_system.load_game(slot)
+                    if save_data:
+                        _apply_save_data(save_data)
+                        intro_state = "playing"
             elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
                 if intro_state == "thumbnail":
                     intro_state = "transition_to_menu"
