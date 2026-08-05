@@ -8,9 +8,12 @@ PLANETS = {
         "rooms": home_rooms,
         "connections": home_connections,
         "start_room": "room1",
+        "music": "assets/music/home_theme.mp3", # this doesnt exist yet, will be added when the music is ready
     },
     "nova": {
         "display_name": "Nova Prime",
+        # assets/music/nova_theme.mp3
+        "music": "assets/music/nova_theme.mp3",
         "rooms": {
             "nova1": {
                 "color": (24, 40, 80),
@@ -101,6 +104,11 @@ def get_current_room_data():
 
 def get_current_connections():
     return PLANETS[current_planet]["connections"]
+
+
+def get_current_music_path():
+    """Returns the current planet's music path"""
+    return PLANETS[current_planet].get("music")
 
 
 def switch_planet(planet_key, start_room=None):

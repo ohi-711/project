@@ -12,6 +12,10 @@ import chaser
 from resource_path import resource_path
 
 pygame.init()
+try:
+    pygame.mixer.init()
+except pygame.error:
+    pass
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 world_surface = pygame.Surface((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Detective Game")
@@ -43,7 +47,6 @@ instructions_skip_typing = False
 
 
 def _revealed_instruction_lines():
-    """Typewriter effect for revealing instruction lines."""
     if instructions_skip_typing:
         revealed_total = INSTRUCTION_TOTAL_CHARS
     else:
@@ -310,10 +313,32 @@ def _complete_capture():
     capture_state["phase"] = "in"
 
 
+def _sync_planet_music():
+    """Loads and loops the current planet's music track"""
+    global _current_music_planet
+    if planet_manager.current_planet == _current_music_planet:
+        return
+    _current_music_planet = planet_manager.current_planet
+    music_path = planet_manager.get_current_music_path()
+    if not music_path:
+        pygame.mixer.music.stop()
+        return
+    try:
+        pygame.mixer.music.load(resource_path(music_path))
+        pygame.mixer.music.play(-1)  # loop forever
+    except pygame.error:
+        # file missing/unreadable
+        pygame.mixer.music.stop()
+
+
+_current_music_planet = None
+
 running = True
 dt = 0
 
 while running:
+    _sync_planet_music()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -370,7 +395,6 @@ while running:
                         dialogue_box.start(
                             npc.name, lines,
                             on_complete=_start_battle if triggers_battle else None,
-                            portrait=npc.get_portrait(),
                         )
                         interacted = True
                         break
@@ -402,9 +426,7 @@ while running:
                 intro_transition_alpha = 255
                 instructions_skip_typing = False
         elif intro_state == "instructions":
-            # Keep the timer running (it drives the typewriter reveal), but
-            # don't auto-advance - this screen should only move on when the
-            # player presses Enter/Space.
+            # Keep the timer running (it drives the typewriter reveal), but don't auto-advance
             intro_timer += dt
         else:
             intro_timer += dt
@@ -417,10 +439,6 @@ while running:
             pygame.display.flip()
             dt = clock.tick(FPS) / 1000
             continue
-        # else: intro_state just flipped to "playing" on this same frame -
-        # fall through to normal gameplay rendering below instead of drawing
-        # a stale intro_screen frame (which would flash the instruction
-        # text with no fade overlay for one frame).
 
     dialogue_box.update(dt)
 
