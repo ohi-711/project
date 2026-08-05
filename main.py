@@ -9,6 +9,7 @@ from transport import start_transport_segment
 import background
 import vision
 import chaser
+import pause_menu
 from resource_path import resource_path
 
 pygame.init()
@@ -143,6 +144,7 @@ sprites = {
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
 courtroom_battle_ui = courtroom_battle.CourtroomBattle()
+pause_menu_ui = pause_menu.PauseMenu()
 
 # dark figure chaser
 dark_figure = chaser.DarkFigure()
@@ -367,6 +369,14 @@ while running:
         if capture_state["active"]:
             continue
 
+        if pause_menu_ui.active:
+            pause_menu_ui.handle_event(event)
+            continue
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            pause_menu_ui.open()
+            continue
+
         if courtroom_battle_ui.active:
             courtroom_battle_ui.handle_event(event)
             continue
@@ -406,6 +416,9 @@ while running:
                         if pygame.Vector2(door_x, door_y).distance_to(player.pos) <= INTERACT_RANGE:
                             request_building_transition(building)
                             break
+
+    if pause_menu_ui.should_quit:
+        running = False
 
     if not running:
         break
@@ -459,7 +472,8 @@ while running:
         dark_figure_room = None
 
     if (not dialogue_box.active and not courtroom_battle_ui.active
-            and not transition_state["active"] and not capture_state["active"]):
+            and not transition_state["active"] and not capture_state["active"]
+            and not pause_menu_ui.active):
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
         if sky:
@@ -592,6 +606,8 @@ while running:
         overlay.set_alpha(int(capture_state["alpha"]))
         overlay.fill((0, 0, 0))
         screen.blit(overlay, (0, 0))
+
+    pause_menu_ui.draw(screen)
 
     pygame.display.flip()
     dt = clock.tick(FPS) / 1000

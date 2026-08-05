@@ -8,7 +8,7 @@ PLANETS = {
         "rooms": home_rooms,
         "connections": home_connections,
         "start_room": "room1",
-        "music": "assets/music/home_theme.mp3", # this doesnt exist yet, will be added when the music is ready
+        #"music": "assets/music/home_theme.mp3", # this doesnt exist yet, will be added when the music is ready
     },
     "nova": {
         "display_name": "Nova Prime",
