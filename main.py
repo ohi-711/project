@@ -11,6 +11,7 @@ import vision
 import chaser
 import pause_menu
 from resource_path import resource_path
+import menu
 
 pygame.init()
 try:
@@ -33,6 +34,7 @@ instructions_duration = 4.0
 transition_duration = 1.0
 intro_transition_alpha = 0
 intro_font = pygame.font.SysFont(None, 34)
+main_menu = menu.MainMenu()
 
 # typewriter effect for the WASD/instructions text
 INSTRUCTION_LINES = [
@@ -91,9 +93,21 @@ def draw_intro_screen(surface):
         blit_centered_scaled(thumbnail_image, surface)
         return
 
-    if intro_state == "transition_to_instructions":
+    if intro_state == "transition_to_menu":
         surface.fill((0, 0, 0))
         blit_centered_scaled(thumbnail_image, surface)
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.fill((0, 0, 0))
+        overlay.set_alpha(intro_transition_alpha)
+        surface.blit(overlay, (0, 0))
+        return
+
+    if intro_state == "menu":
+        main_menu.draw(surface)
+        return
+
+    if intro_state == "transition_to_instructions":
+        main_menu.draw(surface)
         overlay = pygame.Surface((WIDTH, HEIGHT))
         overlay.fill((0, 0, 0))
         overlay.set_alpha(intro_transition_alpha)
@@ -347,9 +361,18 @@ while running:
             break
 
         if intro_state != "playing":
-            if event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
-                if intro_state == "thumbnail":
+            if intro_state == "menu":
+                result = main_menu.handle_event(event)
+                if result == "play":
                     intro_state = "transition_to_instructions"
+                    intro_timer = 0.0
+                    intro_transition_alpha = 0
+                elif result == "exit":
+                    running = False
+                    break
+            elif event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                if intro_state == "thumbnail":
+                    intro_state = "transition_to_menu"
                     intro_timer = 0.0
                     intro_transition_alpha = 0
                 elif intro_state == "instructions":
@@ -427,9 +450,20 @@ while running:
         if intro_state == "thumbnail":
             intro_timer += dt
             if intro_timer >= thumbnail_duration:
-                intro_state = "transition_to_instructions"
+                intro_state = "transition_to_menu"
                 intro_timer = 0.0
                 intro_transition_alpha = 0
+        elif intro_state == "transition_to_menu":
+            intro_timer += dt
+            intro_transition_alpha = int(min(255, (intro_timer / transition_duration) * 255))
+            if intro_timer >= transition_duration:
+                intro_state = "menu"
+                intro_timer = 0.0
+                intro_transition_alpha = 255
+                main_menu.reset()
+        elif intro_state == "menu":
+            # waits on player input 
+            pass
         elif intro_state == "transition_to_instructions":
             intro_timer += dt
             intro_transition_alpha = int(min(255, (intro_timer / transition_duration) * 255))
