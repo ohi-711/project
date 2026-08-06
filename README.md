@@ -21,7 +21,6 @@ This game was made using just Python and Python libraries. Specific libraries us
 - It was also somewhat difficult adding the chasing sequence on the second planet. This is because when the player switches rooms, there has to be a delay depending on how far the figure was from the player.
 
 There are also still issues with the game/things I need to add:
-- Collision with NPCs and inanimate objects looks weird because the obstacle size set is the size of the file. However, almost all of these assets are not cropped very well, and there is a lot of blank space.
 - A lot of the assets are temporary replacements. The actual assets will be more polished and drawn later.
 - A lot of the dialogue is also temporary and will be improved upon later.
 - Very few things have been added in terms of gameplay. More interesting things to do other than speak to NPCs will be added later.
