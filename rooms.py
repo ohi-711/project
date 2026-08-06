@@ -69,6 +69,7 @@ rooms = {
         "obstacles": [
             # obstacles are autoadded
         ],
+        "transport_box": {"x": 70, "y": 480, "size": (40, 40)},
         "npcs": [
             NPC(500, 400, "Old Slime", (200, 170, 100),
                 ["Ah, a traveler.", "Take this torn map fragment — you'll need it."],

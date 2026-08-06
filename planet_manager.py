@@ -33,6 +33,7 @@ PLANETS = {
                 "obstacles": [
                     pygame.Rect(420, 420, 80, 80),
                 ],
+                "transport_box": {"x": 150, "y": 500, "size": (40, 40)},
                 "npcs": [
                     NPC(640, 380, "Nova Guide", (180, 230, 240),
                         ["Welcome to Nova Prime.", "The surface here is strange but safe."],

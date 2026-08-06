@@ -5,6 +5,7 @@ from player import Player
 from dialogue import DialogueBox
 import boss_battle
 import courtroom_battle
+import transport_box
 from transport import start_transport_segment
 import background
 import vision
@@ -160,6 +161,7 @@ sprites = {
 player = Player(WIDTH / 2, HEIGHT / 2, sprites)
 dialogue_box = DialogueBox()
 courtroom_battle_ui = courtroom_battle.CourtroomBattle()
+transport_menu = transport_box.TransportMenu()
 pause_menu_ui = pause_menu.PauseMenu()
 
 # dark figure chaser
@@ -223,8 +225,10 @@ transition_state = {
     "alpha": 0,
     "target_room": None,
     "direction": None,
-    "mode": "room",       # "room" (walked off an edge) or "building" (walked through a door)
+    "mode": "room",       # "room" (walked off an edge), "building" (walked through a door),
+                          # or "planet" (used a transport pad)
     "spawn_pos": None,    # used only when mode == "building"
+    "target_planet": None,  # used only when mode == "planet"
 }
 
 
@@ -278,6 +282,22 @@ def request_building_transition(building):
     })
 
 
+def request_planet_transition(destination_planet):
+    global transition_state
+    if transition_state["active"]:
+        return
+    transition_state.update({
+        "active": True,
+        "phase": "out",
+        "alpha": 0,
+        "target_room": None,
+        "direction": None,
+        "mode": "planet",
+        "spawn_pos": None,
+        "target_planet": destination_planet,
+    })
+
+
 def _follow_chaser_through_doorway(direction, gap_distance):
     """Positions the dark figure just inside the new room, coming through
     the same doorway the player used"""
@@ -300,6 +320,14 @@ def _follow_chaser_through_doorway(direction, gap_distance):
 
 def _complete_room_change():
     global dark_figure_room
+
+    if transition_state["mode"] == "planet":
+        planet_manager.switch_planet(transition_state["target_planet"])
+        player.center_on_screen(WIDTH, HEIGHT)
+        dark_figure.deactivate()
+        dark_figure_room = None
+        transition_state["phase"] = "in"
+        return
 
     chase_gap = None
     if planet_manager.current_planet == "nova" and dark_figure.active:
@@ -451,6 +479,10 @@ while running:
             courtroom_battle_ui.handle_event(event)
             continue
 
+        if transport_menu.active:
+            transport_menu.handle_event(event)
+            continue
+
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
             if dialogue_box.active:
                 dialogue_box.advance()
@@ -487,6 +519,16 @@ while running:
                             request_building_transition(building)
                             break
 
+                # if nothing else was close enough, check for a transport pad
+                if not interacted and not transition_state["active"]:
+                    tbox = current_room_data.get("transport_box")
+                    if tbox is not None and transport_box.is_near(tbox, player.pos):
+                        interacted = True
+                        if transport_box.is_unlocked():
+                            transport_menu.open(planet_manager.current_planet, request_planet_transition)
+                        else:
+                            dialogue_box.start("SYSTEM", list(transport_box.LOCKED_MESSAGE))
+
     if pause_menu_ui.should_quit:
         running = False
 
@@ -499,6 +541,7 @@ while running:
 
         dialogue_box.active = False
         courtroom_battle_ui.active = False
+        transport_menu.close()
         dark_figure.deactivate()
         dark_figure_room = None
         transition_state["active"] = False
@@ -568,11 +611,15 @@ while running:
 
     if (not dialogue_box.active and not courtroom_battle_ui.active
             and not transition_state["active"] and not capture_state["active"]
-            and not pause_menu_ui.active):
+            and not pause_menu_ui.active and not transport_menu.active):
         obstacles = list(room.get("obstacles", []))
         sky = room.get("sky")
         if sky:
             obstacles.append(pygame.Rect(0, 0, WIDTH, sky["height"]))
+
+        transport_box_data = room.get("transport_box")
+        if transport_box_data is not None:
+            obstacles.append(transport_box.get_box_rect(transport_box_data))
 
         if room.get("native_size"):
             play_rect = _room_play_rect(room)
@@ -671,6 +718,10 @@ while running:
     for item in room.get("decor", []):
         background.draw(world_surface, item)
 
+    room_transport_box = room.get("transport_box")
+    if room_transport_box is not None:
+        transport_box.draw(world_surface, room_transport_box)
+
     for npc in room["npcs"]:
         npc.draw(world_surface)
 
@@ -689,6 +740,7 @@ while running:
 
     dialogue_box.draw(screen)
     courtroom_battle_ui.draw(screen)
+    transport_menu.draw(screen)
 
     if transition_state["active"]:
         overlay = pygame.Surface((WIDTH, HEIGHT))
