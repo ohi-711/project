@@ -293,6 +293,9 @@ rooms = {
         "name": "Bunny Building - Interior",
         "background_image": "assets/backgrounds/bunnybuildinginside.png",
         "native_size": True,
+        "interior_obstacles": [
+            {"fraction_rect": (0.0, 0.0, 1.0, 115 / 500)},
+        ],
         "decor": [],
         "npcs": [],
         "buildings": [
